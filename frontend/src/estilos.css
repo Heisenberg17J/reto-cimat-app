@@ -809,7 +809,7 @@ code {
   right: 0.8rem;
   z-index: 20;
   background: var(--acento);
-  color: #fff;
+  color: #0000;
   border: 0;
   border-radius: 999px;
   padding: 0.45rem 0.9rem;
@@ -868,4 +868,35 @@ code {
 }
 .ejemplos button {
   text-align: left;
+}
+
+/* Enlace "Acerca de" en el pie + contenido del modal */
+.enlace-pie {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--acento);
+  font-size: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.aviso-academico {
+  margin: 1rem 0;
+  padding: 0.7rem 1rem;
+  border-left: 4px solid #e5c96b;
+  background: #fff8e8;
+  border-radius: 6px;
+}
+.modal .citas {
+  font-size: 0.86rem;
+  line-height: 1.45;
+  padding-left: 1.2rem;
+}
+.modal .citas li {
+  margin-bottom: 0.5rem;
+}
+.modal hr {
+  border: 0;
+  border-top: 1px solid var(--borde);
+  margin: 1.2rem 0;
 }

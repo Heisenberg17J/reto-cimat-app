@@ -4,6 +4,7 @@ import Carga from "./componentes/Carga.jsx";
 import Progreso from "./componentes/Progreso.jsx";
 import Resultados from "./componentes/Resultados.jsx";
 import Guia from "./componentes/Guia.jsx";
+import AcercaDe from "./componentes/AcercaDe.jsx";
 import { analizarEjemplo, borrarAnalisis, estadoPesos, listarEjemplos } from "./api.js";
 
 export default function App() {
@@ -14,6 +15,7 @@ export default function App() {
   const [pesos, setPesos] = useState(null);
   const [ejemplos, setEjemplos] = useState([]);
   const [mostrarGuia, setMostrarGuia] = useState(false);
+  const [mostrarAcerca, setMostrarAcerca] = useState(false);
 
   useEffect(() => {
     estadoPesos().then(setPesos).catch(() => {});
@@ -93,8 +95,12 @@ export default function App() {
       </main>
 
       <footer className="pie">
-        Prototipo de investigación · no es una herramienta clínica · reto-cimat-app · BraTS 2018
+        Prototipo de investigación · no es una herramienta clínica · reto-cimat-app · BraTS 2018 ·{" "}
+        <button className="enlace-pie" onClick={() => setMostrarAcerca(true)}>
+          Acerca de
+        </button>
       </footer>
+      {mostrarAcerca && <AcercaDe onCerrar={() => setMostrarAcerca(false)} />}
     </div>
   );
 }
