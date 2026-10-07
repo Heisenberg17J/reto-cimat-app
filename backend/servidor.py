@@ -78,7 +78,11 @@ def main(argv=None):
             from radiomics import featureextractor  # noqa: F401
             import sksurv  # noqa: F401
             from nucleo import analizar  # noqa: F401
-            print(f"autocomprobacion OK: torch {torch.__version__}, nnU-Net + PyRadiomics + sksurv importados")
+            # torchvision debe registrar sus ops nativas (si no, "operator torchvision::nms does not exist")
+            import torchvision  # noqa: F401
+            torch.ops.torchvision.nms(torch.zeros((1, 4)), torch.zeros((1,)), 0.5)
+            print(f"autocomprobacion OK: torch {torch.__version__}, torchvision {torchvision.__version__} "
+                  f"(nms ok), nnU-Net + PyRadiomics + sksurv importados")
             sys.exit(0)
         except Exception as e:  # noqa: BLE001
             print(f"autocomprobacion FALLO: {type(e).__name__}: {e}")

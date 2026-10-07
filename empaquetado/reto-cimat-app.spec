@@ -41,7 +41,7 @@ PAQUETES = [
     "radiomics", "pykwalify", "ruamel", "pywt",       # radiómica
     "sksurv", "sklearn",                               # pronóstico
     "SimpleITK", "nibabel", "skimage", "scipy", "pandas", "matplotlib",
-    "torch", "nnunetv2",                               # segmentación
+    "torch", "torchvision", "timm", "nnunetv2",        # segmentación (torchvision: ops nativas como nms)
     "batchgenerators", "batchgeneratorsv2", "acvl_utils", "dynamic_network_architectures",
     "fastapi", "starlette", "uvicorn", "anyio", "multipart",  # backend
     "einops", "tqdm", "yaml", "seaborn", "blosc2", "threadpoolctl",  # deps que nnU-Net suele arrastrar

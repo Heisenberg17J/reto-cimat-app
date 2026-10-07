@@ -60,7 +60,7 @@ jobs:
       - name: Instalar la app (backend + segmentación CPU + PyRadiomics)
         run: |
           pip install -c restricciones.txt --extra-index-url https://download.pytorch.org/whl/cpu \
-              torch "nnunetv2==2.8.1"
+              torch torchvision "nnunetv2==2.8.1"
           pip install -c restricciones.txt -e ".[backend]"
           pip install -c restricciones.txt ruedas/pyradiomics-*.whl
           pip install pyinstaller
