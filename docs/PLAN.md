@@ -101,13 +101,14 @@ sin pantalla). Desarrollo: `cd frontend && npm install && npm run build`; en dev
 - ✅ **Registro** de actividad y errores a `~/.reto-cimat/reto-cimat.log` (rota; `NUCLEO_DATOS` cambia la carpeta).
 - Pendiente (menor): elegir **carpeta de resultados** persistente e **idioma** (la app es español-primero).
 
-### Fase 5 · Ejecutable portable y publicación
-- GitHub Actions: PyInstaller (carpeta) en Windows y Linux, empaquetando el servidor + el frontend. **Sin instalador:** un
-  ejecutable portable que arranca el servidor y abre el navegador (en Windows, un `.zip` con `reto-cimat-app.exe`; en
-  Linux, un `.AppImage`). La base de empaquetado es la Fase 0 (`empaquetado/`, `docs/FASE0.md`).
-- Publicación en GitHub Releases, junto con los pesos.
-- Tamaño esperado: ~1–2 GB, por PyTorch CPU. **Aviso de SmartScreen:** al ser un portable sin firmar, Windows puede
-  avisar la primera vez; documentar cómo continuar, o conseguir un certificado. (Se evita el aviso extra del instalador).
+### Fase 5 · Ejecutable portable y publicación ⏳ (configurada; build en CI)
+- ✅ GitHub Actions (`.github/workflows/empaquetar.yml`): PyInstaller (carpeta) en Windows y Linux, empaquetando servidor
+  + frontend + núcleo + torch + nnU-Net; comprime en `.zip`. **Sin instalador.** No incluye los pesos (se descargan en el
+  primer arranque, Fase 4). Base: Fase 0 (`empaquetado/`). Ver `docs/FASE5.md`.
+- ✅ Publicación: al etiquetar `app-v*`, adjunta los `.zip` al Release.
+- **Pendiente:** primer build real en CI y confirmar la segmentación con nnU-Net desde el artefacto (afinar *hidden
+  imports*; nnU-Net congelado es lo delicado). **SmartScreen:** portable sin firmar → documentar "Ejecutar de todas
+  formas" o firmar. Tamaño esperado ~1–2 GB (PyTorch CPU). (Linux: de momento `.zip`, no `.AppImage`).
 
 ### Fase 6 · (Futuro) Preprocesamiento de resonancias clínicas
 Para aceptar resonancias reales del hospital (DICOM), habría que convertirlas a formato BraTS:

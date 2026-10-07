@@ -1,0 +1,99 @@
+# Fase 5 - Ejecutable portable (servidor + frontend + núcleo + torch + nnU-Net).
+#
+# Construye en Windows y Linux una carpeta portable con PyInstaller y la comprime en .zip.
+# NO incluye los pesos de nnU-Net: se descargan en el primer arranque (Fase 4, verificados sha256).
+# Al empujar una etiqueta app-v* (p. ej. app-v1), adjunta los .zip al Release correspondiente.
+#
+# Es un build pesado (~1-2 GB por PyTorch). Se ejecuta a mano (workflow_dispatch) o por etiqueta,
+# no en cada push.
+
+name: Fase 5 - empaquetar app portable
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["app-v*"]
+
+permissions:
+  contents: write   # para adjuntar los .zip al Release
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  empaquetar:
+    name: ${{ matrix.sufijo }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            sufijo: windows
+          - os: ubuntu-latest
+            sufijo: linux
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Compilar el frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Compilar la rueda de PyRadiomics (ver Fase 0)
+        run: |
+          python -m pip install --upgrade pip
+          pip install "numpy==1.26.4" "versioneer==0.29" "setuptools>=68" wheel
+          pip wheel "pyradiomics==3.0.1" --no-build-isolation --no-deps -w ruedas
+
+      - name: Instalar la app (backend + segmentación CPU + PyRadiomics)
+        run: |
+          pip install -c restricciones.txt --extra-index-url https://download.pytorch.org/whl/cpu \
+              torch "nnunetv2==2.8.1"
+          pip install -c restricciones.txt -e ".[backend]"
+          pip install -c restricciones.txt ruedas/pyradiomics-*.whl
+          pip install pyinstaller
+
+      - name: Empaquetar con PyInstaller
+        run: pyinstaller empaquetado/reto-cimat-app.spec --noconfirm
+
+      - name: Smoke test (arranca y responde /api/salud, sin tocar nnU-Net)
+        run: |
+          BIN="dist/reto-cimat-app/reto-cimat-app"
+          [ -f "$BIN.exe" ] && BIN="$BIN.exe"
+          "$BIN" --sin-navegador --puerto 8123 &
+          PID=$!
+          ok=0
+          for i in $(seq 1 40); do
+            if curl -sf http://127.0.0.1:8123/api/salud >/dev/null 2>&1; then ok=1; break; fi
+            sleep 2
+          done
+          kill "$PID" 2>/dev/null || true
+          if [ "$ok" != 1 ]; then echo "::error::el servidor empaquetado no respondió"; exit 1; fi
+          echo "OK: el servidor empaquetado respondió"
+
+      - name: Comprimir la carpeta portable
+        run: python -c "import shutil; shutil.make_archive('reto-cimat-app-${{ matrix.sufijo }}', 'zip', 'dist/reto-cimat-app')"
+
+      - name: Guardar como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: reto-cimat-app-${{ matrix.sufijo }}
+          path: reto-cimat-app-${{ matrix.sufijo }}.zip
+
+      - name: Adjuntar al Release (solo al etiquetar app-v*)
+        if: startsWith(github.ref, 'refs/tags/app-v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: reto-cimat-app-${{ matrix.sufijo }}.zip

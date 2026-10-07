@@ -25,7 +25,7 @@ Docker. Arquitectura y fases en [docs/PLAN.md](docs/PLAN.md).
 | 2 | **Backend FastAPI local** (`backend/`): API, cola de análisis y página web mínima | **Hecha** |
 | 3 | **Interfaz React + NiiVue** (`frontend/`): visor, volúmenes, pronóstico | **v1 hecha** (falta probar en navegador) |
 | 4 | **Arranque, modos rápido/completo, descarga de pesos (sha256) y registro** | **v1 hecha** (falta URL de Releases) |
-| 5 | Ejecutable portable (Windows `.zip`, Linux AppImage), sin instalador | Pendiente |
+| 5 | **Ejecutable portable** (Windows/Linux `.zip`), sin instalador — workflow listo | **Configurada** (build en CI) |
 | 6 | (Futuro) Preprocesamiento de resonancias clínicas (DICOM → formato BraTS) | Futuro |
 | 7 | Validación con usuarios | Pendiente |
 
