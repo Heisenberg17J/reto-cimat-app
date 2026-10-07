@@ -44,7 +44,7 @@ PAQUETES = [
     "torch", "nnunetv2",                               # segmentación
     "batchgenerators", "batchgeneratorsv2", "acvl_utils", "dynamic_network_architectures",
     "fastapi", "starlette", "uvicorn", "anyio", "multipart",  # backend
-    "einops", "tqdm", "yaml",
+    "einops", "tqdm", "yaml", "seaborn", "blosc2", "threadpoolctl",  # deps que nnU-Net suele arrastrar
 ]
 for paquete in PAQUETES:
     try:

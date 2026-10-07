@@ -64,7 +64,25 @@ def main(argv=None):
     ap.add_argument("--host", default="127.0.0.1",
                     help="interfaz donde escuchar (127.0.0.1 por defecto; 0.0.0.0 para acceder por IP)")
     ap.add_argument("--sin-navegador", action="store_true", help="no abrir el navegador")
+    ap.add_argument("--autocomprobar", action="store_true",
+                    help="importa la pila pesada (torch, nnU-Net, PyRadiomics, sksurv) y sale; "
+                         "sirve para validar el empaquetado sin pesos ni datos")
     args = ap.parse_args(argv)
+
+    if args.autocomprobar:
+        import sys
+        try:
+            import torch
+            import nnunetv2  # noqa: F401
+            from nnunetv2.inference.predict_from_raw_data import nnUNetPredictor  # noqa: F401
+            from radiomics import featureextractor  # noqa: F401
+            import sksurv  # noqa: F401
+            from nucleo import analizar  # noqa: F401
+            print(f"autocomprobacion OK: torch {torch.__version__}, nnU-Net + PyRadiomics + sksurv importados")
+            sys.exit(0)
+        except Exception as e:  # noqa: BLE001
+            print(f"autocomprobacion FALLO: {type(e).__name__}: {e}")
+            sys.exit(1)
 
     puerto = _puerto_libre(args.puerto)
     url_local = f"http://localhost:{puerto}"

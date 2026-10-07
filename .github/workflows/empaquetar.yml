@@ -68,7 +68,13 @@ jobs:
       - name: Empaquetar con PyInstaller
         run: pyinstaller empaquetado/reto-cimat-app.spec --noconfirm
 
-      - name: Smoke test (arranca y responde /api/salud, sin tocar nnU-Net)
+      - name: Autocomprobar imports pesados congelados (torch + nnU-Net + PyRadiomics)
+        run: |
+          BIN="dist/reto-cimat-app/reto-cimat-app"
+          [ -f "$BIN.exe" ] && BIN="$BIN.exe"
+          "$BIN" --autocomprobar
+
+      - name: Smoke test (arranca y responde /api/salud)
         run: |
           BIN="dist/reto-cimat-app/reto-cimat-app"
           [ -f "$BIN.exe" ] && BIN="$BIN.exe"
