@@ -7,10 +7,11 @@ Esta guía es para quien abra este proyecto por primera vez, o en una máquina n
 
 | Ruta | Qué es |
 |---|---|
-| `nucleo/` | La lógica de análisis (fase 1, terminada) |
+| `nucleo/` | La lógica de análisis |
+| `backend/`, `frontend/` | Servidor FastAPI local y la interfaz web (React + NiiVue) |
 | `artefactos/` | YAML de PyRadiomics, modelo de pronóstico y umbral de ET, con `SHA256SUMS` y `PROCEDENCIA.md` |
 | `tests/` | Pruebas de regresión y sus valores esperados (`tests/esperado/`) |
-| `docs/` | `PLAN.md` (fases), `CONTEXTO.md` (de dónde viene todo) y esta guía |
+| `docs/` | `CONTEXTO.md` (de dónde viene todo), `GUIA_USUARIO.md` y esta guía |
 | `CLAUDE.md` | Reglas para Claude Code (las lee solo al abrir una sesión aquí) |
 | `pyproject.toml`, `restricciones.txt` | Dependencias con versiones fijas |
 
@@ -72,12 +73,13 @@ pip install versioneer==0.29 && pip install --no-build-isolation pyradiomics==3.
 pip install -c restricciones.txt --extra-index-url https://download.pytorch.org/whl/cpu -e ".[segmentacion]"
 ```
 
-En **Windows**, `pyradiomics` no se instala así: no hay versión compilada. Esa es justamente la Fase 0 del plan.
+En **Windows**, `pyradiomics` no se instala así (no hay versión compilada publicada): se compila en la CI de GitHub
+Actions (ver `.github/workflows/`) o con Visual Studio Build Tools.
 
 ## 5. Comprobar que todo está bien
 
 ```
-pytest                    # deben pasar 6 pruebas (~70 s)
+pytest                    # pruebas de regresión del núcleo + del backend
 reto-cimat-analizar --caso datos_prueba/Brats18_CBICA_AAP_1 --edad 39.068 \
     --segmentacion datos_prueba/Brats18_CBICA_AAP_1/segmentacion.nii.gz
 ```
@@ -93,6 +95,6 @@ claude
 
 Claude leerá `CLAUDE.md` automáticamente. Un buen primer mensaje:
 
-> Lee docs/PLAN.md y docs/CONTEXTO.md. Empecemos la Fase 0: viabilidad del empaquetado en Windows.
+> Lee docs/CONTEXTO.md y revisa el estado del repo; dime en qué puedo ayudar a continuar.
 
 Recordatorio: esa sesión trabaja **solo** en `reto_cimat_app`; el proyecto de investigación no se modifica.

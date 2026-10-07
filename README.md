@@ -13,26 +13,15 @@ resonancias de un paciente (y, si se conoce, su edad):
 El estudio completo, con datos, entrenamiento y validación, está en el repositorio de investigación `reto-CIMAT`
 (sus decisiones se citan aquí como D*n*).
 
-## Estado
+## La aplicación
 
-Objetivo: una **app de escritorio para personas comunes**, con instalador para Windows (y Linux), sin terminal ni
-Docker. Arquitectura y fases en [docs/PLAN.md](docs/PLAN.md).
+Es un **servidor web local**: se descarga, se descomprime y se abre en el navegador (Windows; también Linux), **sin
+instalar Python ni Docker** y sin internet salvo la descarga inicial de los modelos. Las imágenes **no salen del equipo**.
 
-| Fase | Qué | Estado |
-|---|---|---|
-| 0 | Viabilidad del empaquetado en Windows: compilar PyRadiomics y obtener los mismos números ([docs/FASE0.md](docs/FASE0.md)) | **En progreso** |
-| 1 | **Núcleo** (`nucleo/`): la lógica de análisis como funciones reutilizables, con pruebas de regresión | **Hecha** |
-| 2 | **Backend FastAPI local** (`backend/`): API, cola de análisis y página web mínima | **Hecha** |
-| 3 | **Interfaz React + NiiVue** (`frontend/`): visor, volúmenes, pronóstico | **v1 hecha** (falta probar en navegador) |
-| 4 | **Arranque, modos rápido/completo, descarga de pesos (sha256) y registro** | **v1 hecha** (falta URL de Releases) |
-| 5 | **Ejecutable portable** (Windows/Linux `.zip`), sin instalador | **Hecha** (probado en Windows real) |
-| 6 | (Futuro) Preprocesamiento de resonancias clínicas (DICOM → formato BraTS) | Futuro |
-| 7 | Validación con usuarios | Pendiente |
+**Para el usuario final:** [docs/GUIA_USUARIO.md](docs/GUIA_USUARIO.md) — instalar y usar la app en Windows, sin tecnicismos.
 
-**Para el usuario final:** [docs/GUIA_USUARIO.md](docs/GUIA_USUARIO.md) (instalar y usar la app en Windows, sin tecnicismos).
-
-**Para empezar a trabajar aquí:** [docs/INICIO_SESION.md](docs/INICIO_SESION.md) (entorno, archivos a copiar, primer
-mensaje para Claude Code). Contexto científico: [docs/CONTEXTO.md](docs/CONTEXTO.md).
+**Para desarrollar aquí:** [docs/INICIO_SESION.md](docs/INICIO_SESION.md) (entorno y archivos a copiar). Contexto
+científico: [docs/CONTEXTO.md](docs/CONTEXTO.md).
 
 ## Estructura
 
@@ -47,7 +36,7 @@ nucleo/            lógica de análisis (sin interfaz)
   cli.py             línea de comandos
 artefactos/        YAML de PyRadiomics, modelo de pronóstico y umbral de ET (ver PROCEDENCIA.md)
 tests/             pruebas de regresión y valores esperados (tests/esperado/)
-docs/              PLAN, CONTEXTO e INICIO_SESION
+docs/              CONTEXTO, GUIA_USUARIO e INICIO_SESION
 datos_prueba/      (no versionado) 2 pacientes de BraTS para las pruebas
 ```
 

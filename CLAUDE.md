@@ -22,8 +22,8 @@ supervivencia orientativo. Es un **prototipo de investigación, no una herramien
 
 ## Dónde está cada cosa
 
-- `docs/PLAN.md`: arquitectura y fases. **Leerlo antes de empezar cualquier fase.**
 - `docs/CONTEXTO.md`: qué hace el núcleo, de dónde salen los modelos, números que hay que preservar y limitaciones.
+- `docs/GUIA_USUARIO.md`: guía para el usuario final (instalar y usar la app en Windows).
 - `docs/INICIO_SESION.md`: cómo preparar el entorno y los archivos que hay que copiar.
 - `nucleo/analisis.py`: `analizar(...)`, la única función que deben llamar el backend o la línea de comandos.
 

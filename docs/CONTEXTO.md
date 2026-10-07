@@ -40,8 +40,7 @@ resultado va de "supervivencia larga" a los 40 años a "corta" a los 80.
 
 1. **Formato de entrada.** Las resonancias deben estar **en formato BraTS**: sin cráneo, co-registradas al atlas SRI24,
    voxel de 1 mm y 240 × 240 × 155. **Una resonancia clínica normal (DICOM del hospital) no viene así.** Convertirla
-   requiere un preprocesamiento (DICOM → NIfTI, registro, extracción de cráneo) que la versión 1 **no** incluye; ver
-   PLAN, fase 6.
+   requiere un preprocesamiento (DICOM → NIfTI, registro, extracción de cráneo) que esta versión **no** incluye.
 2. **No es clínico:** sin validación externa, la exactitud con pacientes nuevos no está medida.
 3. **Segmentación en CPU:** varios minutos por paciente; con GPU NVIDIA, segundos.
 4. **Pesos de nnU-Net:** los 5 checkpoints finales. Hay que distribuirlos aparte y revisar la licencia de uso de los datos
