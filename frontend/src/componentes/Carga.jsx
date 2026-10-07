@@ -138,7 +138,7 @@ export default function Carga({ onIniciado, onCancelar, pesos }) {
       )}
 
       <label className="campo">
-        Edad (años) <span className="pista">— opcional. Sin ella no hay pronóstico (la edad no se imputa).</span>
+        Edad (años) <span className="pista">— opcional. Sin ella no hay pronóstico.</span>
         <input
           type="number"
           min="1"
@@ -151,7 +151,7 @@ export default function Carga({ onIniciado, onCancelar, pesos }) {
       </label>
 
       <fieldset className="modo" disabled={!!segmentacion || sinPesos}>
-        <legend>Segmentación automática (nnU-Net)</legend>
+        <legend>Segmentación automática (nuestro modelo)</legend>
         {sinPesos && (
           <p className="error">
             No hay modelos instalados: la segmentación automática no está disponible. Sube una segmentación ya
@@ -174,7 +174,8 @@ export default function Carga({ onIniciado, onCancelar, pesos }) {
       <details className="avanzado">
         <summary>Opción avanzada: subir una segmentación ya hecha</summary>
         <p className="pista">
-          Si no la sube, se intentará segmentar con nnU-Net en este equipo (tarda minutos en CPU).
+          Si no la sube, se segmentará con nuestro modelo (entrenado con nnU-Net sobre BraTS 2018) en este
+          equipo (tarda minutos en CPU).
         </p>
         <input
           type="file"

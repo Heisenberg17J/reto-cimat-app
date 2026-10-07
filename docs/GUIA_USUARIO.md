@@ -97,4 +97,5 @@ segmentación ya hecha en cada análisis (ver el paso 5, opción avanzada).
 
 Autores: **Hejembert Jaramillo, Daniel León, Karen Arroyave, Dylan Cuervo, Nikol López.**
 
-Modelos del proyecto de investigación *reto-CIMAT* (BraTS 2018). Prototipo de investigación, no clínico.
+Modelos de segmentación y pronóstico **entrenados por el Team Camacho** en el proyecto de investigación *reto-CIMAT*
+(BraTS 2018); la segmentación usa el framework de código abierto nnU-Net. Prototipo de investigación, no clínico.

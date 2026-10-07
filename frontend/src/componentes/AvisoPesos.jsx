@@ -27,10 +27,10 @@ export default function AvisoPesos({ pesos, setPesos }) {
 
   return (
     <div className="tarjeta avisos-formato">
-      <h3>Faltan los modelos de segmentación (nnU-Net)</h3>
+      <h3>Faltan nuestros modelos de segmentación</h3>
       <p>
-        Sin ellos la app no puede segmentar sola; tendrás que subir una segmentación ya hecha en cada análisis
-        (opción avanzada de la pantalla de carga).
+        Son los que entrenó el Team Camacho (con nnU-Net, sobre BraTS 2018). Sin ellos la app no puede segmentar
+        sola; tendrás que subir una segmentación ya hecha en cada análisis (opción avanzada de la pantalla de carga).
       </p>
 
       {pesos.descarga_disponible ? (

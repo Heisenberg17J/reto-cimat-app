@@ -5,10 +5,6 @@ import Progreso from "./componentes/Progreso.jsx";
 import Resultados from "./componentes/Resultados.jsx";
 import { borrarAnalisis, estadoPesos } from "./api.js";
 
-const AVISO =
-  "Prototipo de investigación. No es una herramienta clínica ni sustituye el criterio médico. " +
-  "El pronóstico depende casi solo de la edad.";
-
 export default function App() {
   const [fase, setFase] = useState("inicio"); // inicio | carga | progreso | resultados
   const [analisisId, setAnalisisId] = useState(null);
@@ -30,10 +26,6 @@ export default function App() {
 
   return (
     <div className="app">
-      <header className="aviso" role="alert">
-        <strong>Prototipo de investigación.</strong> {AVISO.replace("Prototipo de investigación. ", "")}
-      </header>
-
       <main>
         {fase === "inicio" && (
           <Inicio onEmpezar={() => setFase("carga")} pesos={pesos} setPesos={setPesos} />
@@ -75,7 +67,7 @@ export default function App() {
       </main>
 
       <footer className="pie">
-        reto-cimat-app · BraTS 2018 · c-index 0.62 (≈ la edad sola). Las imágenes no salen de este equipo.
+        Prototipo de investigación · no es una herramienta clínica · reto-cimat-app · BraTS 2018
       </footer>
     </div>
   );

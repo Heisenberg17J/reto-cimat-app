@@ -11,6 +11,10 @@ export default function Inicio({ onEmpezar, pesos, setPesos }) {
         (edema, necrosis y realce), calcula sus <strong>volúmenes</strong> y estima la <strong>supervivencia</strong>{" "}
         (corta, media o larga).
       </p>
+      <p>
+        Usa <strong>nuestros modelos</strong> —los que entrenó el <strong>Team Camacho</strong> en el proyecto{" "}
+        <em>reto-CIMAT</em> (BraTS 2018)— tanto para la segmentación como para el pronóstico.
+      </p>
       <ul>
         <li>Necesita las 4 resonancias en <strong>formato BraTS</strong> (NIfTI): t1, t1ce, t2 y flair.</li>
         <li>La <strong>edad</strong> es opcional, pero sin ella no hay pronóstico.</li>
@@ -37,7 +41,7 @@ export default function Inicio({ onEmpezar, pesos, setPesos }) {
         <div>
           <p className="uni">Universidad Antonio José Camacho (UNIAJC)</p>
           <p>
-            <strong>Team Camacho</strong> — semilleros Appliscience y SEMOSIMA
+            <strong>Team Camacho</strong> — semilleros AppliScience y SEMOSIMA
           </p>
           <p className="autores">
             Hejembert Jaramillo · Daniel León · Karen Arroyave · Dylan Cuervo · Nikol López
