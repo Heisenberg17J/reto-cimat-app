@@ -292,6 +292,29 @@ progress {
   background: #fff8e8;
 }
 
+.creditos {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.creditos .logo-uniajc {
+  height: 64px;
+  width: auto;
+  flex: 0 0 auto;
+}
+.creditos .uni {
+  font-weight: 700;
+  margin: 0 0 0.2rem;
+}
+.creditos p {
+  margin: 0.1rem 0;
+}
+.creditos .autores {
+  color: var(--pista);
+  font-size: 0.9rem;
+}
+
 .pie {
   text-align: center;
   color: var(--pista);

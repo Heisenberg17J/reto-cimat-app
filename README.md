@@ -29,6 +29,8 @@ Docker. Arquitectura y fases en [docs/PLAN.md](docs/PLAN.md).
 | 6 | (Futuro) Preprocesamiento de resonancias clínicas (DICOM → formato BraTS) | Futuro |
 | 7 | Validación con usuarios | Pendiente |
 
+**Para el usuario final:** [docs/GUIA_USUARIO.md](docs/GUIA_USUARIO.md) (instalar y usar la app en Windows, sin tecnicismos).
+
 **Para empezar a trabajar aquí:** [docs/INICIO_SESION.md](docs/INICIO_SESION.md) (entorno, archivos a copiar, primer
 mensaje para Claude Code). Contexto científico: [docs/CONTEXTO.md](docs/CONTEXTO.md).
 

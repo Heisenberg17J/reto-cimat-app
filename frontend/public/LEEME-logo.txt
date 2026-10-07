@@ -1,0 +1,11 @@
+Coloca aquí el logo de la UNIAJC con el nombre EXACTO:
+
+    logo-uniajc.png
+
+(También vale .jpg/.svg, pero entonces cambia la extensión en Inicio.jsx: src="logo-uniajc.png").
+
+Todo lo que pongas en esta carpeta (frontend/public/) se copia tal cual a la raíz del sitio
+al compilar (npm run build) y queda servido por el backend. La pantalla de inicio muestra el
+logo arriba de los créditos; si el archivo no existe, simplemente no se muestra (no da error).
+
+Tamaño recomendado: alto ~128 px (se muestra a 64 px).

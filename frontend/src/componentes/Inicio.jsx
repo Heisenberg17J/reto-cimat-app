@@ -24,6 +24,26 @@ export default function Inicio({ onEmpezar, pesos, setPesos }) {
           Analizar un paciente
         </button>
       </section>
+
+      <section className="tarjeta creditos">
+        <img
+          className="logo-uniajc"
+          src="logo-uniajc.png"
+          alt="Universidad Antonio José Camacho (UNIAJC)"
+          onError={(e) => {
+            e.currentTarget.style.display = "none";
+          }}
+        />
+        <div>
+          <p className="uni">Universidad Antonio José Camacho (UNIAJC)</p>
+          <p>
+            <strong>Team Camacho</strong> — semilleros Appliscience y SEMOSIMA
+          </p>
+          <p className="autores">
+            Hejembert Jaramillo · Daniel León · Karen Arroyave · Dylan Cuervo · Nikol López
+          </p>
+        </div>
+      </section>
     </>
   );
 }
