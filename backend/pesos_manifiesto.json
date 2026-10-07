@@ -1,0 +1,8 @@
+{
+  "nombre": "pesos_nnunet.zip",
+  "url": "",
+  "sha256": "1f10d69a7c5e5e70fd0b9baa7e4f5689fd3ab9d7242293d5ef201b66eb419d99",
+  "tamano_bytes": 578974070,
+  "descripcion": "nnU-Net 5 folds, Dataset501_BraTS2018 (checkpoint_final de cada fold + planes y fingerprint)",
+  "nota": "url vacia: todavia no hay publicacion en GitHub Releases (Fase 5). Mientras tanto, copiar los pesos a mano (ver docs/INICIO_SESION.md) o definir NUCLEO_PESOS_URL para probar la descarga."
+}

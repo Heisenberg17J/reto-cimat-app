@@ -1,0 +1,33 @@
+{
+  "origen": "repo de investigacion reto-CIMAT, commit 53dd56b (2026-10-06)",
+  "Brats18_CBICA_AAP_1": {
+    "edad": 39.068,
+    "riesgo": -0.778728,
+    "dias": 522,
+    "volumen_cm3": {
+      "WT": 101.61,
+      "TC": 24.61,
+      "ET": 16.47
+    }
+  },
+  "Brats18_2013_25_1": {
+    "estado_ET": "vacia"
+  },
+  "posprocesado": {
+    "Brats18_2013_16_1": {
+      "voxeles_et": 161,
+      "descartado": true,
+      "sha256_mascara_brats": "08fc491c3c172a07d32432427ceac17794d991235496d2930476365e6b078c80"
+    },
+    "Brats18_2013_24_1": {
+      "voxeles_et": 102,
+      "descartado": true,
+      "sha256_mascara_brats": "04d2891f3fa1b99799ef05da2000fbd86d12caf03d9a8e2c9108fe6fd06ae609"
+    },
+    "Brats18_CBICA_AAP_1": {
+      "voxeles_et": 16474,
+      "descartado": false,
+      "sha256_mascara_brats": "77c7ce951e019c474cb104ce1ad4dddab8fc8ef09dc6d2e9fc97d3c489a0948b"
+    }
+  }
+}

@@ -1,0 +1,326 @@
+:root {
+  --borde: #d0d4da;
+  --acento: #2b5f9e;
+  --fondo: #f6f7f9;
+  --texto: #1c2127;
+  --pista: #5a626c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--fondo);
+  color: var(--texto);
+  line-height: 1.5;
+}
+
+.app {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 0 1rem 3rem;
+}
+
+.aviso {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #fff3cd;
+  border: 1px solid #e5c96b;
+  border-radius: 0 0 8px 8px;
+  padding: 0.6rem 1rem;
+  font-size: 0.92rem;
+}
+
+h1 {
+  font-size: 1.5rem;
+}
+h2 {
+  font-size: 1.2rem;
+  margin-top: 0;
+}
+
+.tarjeta {
+  background: #fff;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+  margin: 1rem 0;
+}
+
+.pista {
+  color: var(--pista);
+  font-size: 0.88rem;
+}
+.nota {
+  background: #eef2f7;
+  border-radius: 8px;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.9rem;
+}
+
+button {
+  border: 0;
+  border-radius: 7px;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.principal {
+  background: var(--acento);
+  color: #fff;
+}
+.secundario {
+  background: #e7ebf1;
+  color: var(--texto);
+}
+.botones-carga label.secundario {
+  display: inline-block;
+  padding: 0.6rem 1.2rem;
+  border-radius: 7px;
+  background: #e7ebf1;
+}
+
+.acciones {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.campo {
+  display: block;
+  font-weight: 600;
+  margin-top: 1rem;
+}
+.campo input,
+.asignacion select,
+.controles-visor select {
+  display: block;
+  margin-top: 0.3rem;
+  padding: 0.45rem;
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  min-width: 14rem;
+}
+
+.zona-soltar {
+  border: 2px dashed var(--borde);
+  border-radius: 10px;
+  padding: 1.5rem;
+  text-align: center;
+}
+.botones-carga {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+  margin-top: 0.8rem;
+}
+
+.asignacion {
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+.asignacion th {
+  text-align: left;
+  padding-right: 1rem;
+}
+
+fieldset.modo {
+  margin-top: 1rem;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 0.5rem 1rem 0.8rem;
+}
+fieldset.modo:disabled {
+  opacity: 0.5;
+}
+fieldset.modo legend {
+  font-weight: 600;
+  padding: 0 0.4rem;
+}
+.opcion {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 400;
+  margin: 0.4rem 0;
+}
+.opcion input {
+  width: auto;
+  min-width: 0;
+  margin: 0;
+}
+
+details.avanzado {
+  margin-top: 1rem;
+}
+summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.ok {
+  color: #1d6b3a;
+}
+.error {
+  background: #f8d7da;
+  border: 1px solid #e0a3aa;
+  border-radius: 8px;
+  padding: 0.6rem 0.9rem;
+  color: #8a1c28;
+}
+
+progress {
+  width: 100%;
+  height: 1rem;
+}
+.etapas {
+  color: var(--pista);
+  font-size: 0.9rem;
+}
+.etapas .hecha {
+  color: #1d6b3a;
+}
+.etapas .activa {
+  color: var(--acento);
+  font-weight: 700;
+}
+.etapa-actual {
+  font-weight: 600;
+}
+
+/* Visor: tarjeta oscura y más ancha que el resto de la página. */
+.tarjeta-visor {
+  width: min(1200px, calc(100vw - 3rem));
+  margin-left: calc(50% - min(600px, 50vw - 1.5rem));
+  background: #15191f;
+  border-color: #2a3039;
+  color: #f2f4f7;
+}
+.visor .lienzo {
+  display: block;
+  width: 100%;
+  height: min(80vh, 860px);
+  min-height: 480px;
+  background: #000;
+  border-radius: 8px;
+}
+.controles-visor {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  margin-bottom: 0.8rem;
+}
+.controles-visor label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.controles-visor select {
+  background: #232932;
+  color: #fff;
+  border-color: #3a424d;
+}
+.controles-visor input[type="range"] {
+  display: block;
+  width: 14rem;
+  margin-top: 0.5rem;
+  accent-color: #ffb300;
+}
+.leyenda {
+  display: flex;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  margin-top: 0.7rem;
+  font-size: 0.88rem;
+}
+.leyenda i {
+  display: inline-block;
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 3px;
+  vertical-align: middle;
+  margin-right: 0.3rem;
+}
+
+.volumenes {
+  display: flex;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+.volumenes > div {
+  flex: 1 1 180px;
+  display: flex;
+  flex-direction: column;
+}
+.vol {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--acento);
+}
+
+.destacado {
+  font-size: 1.05rem;
+}
+.referencia table {
+  border-collapse: collapse;
+  margin-top: 0.4rem;
+  font-size: 0.85rem;
+}
+.referencia th,
+.referencia td {
+  border: 1px solid var(--borde);
+  padding: 0.3rem 0.5rem;
+  text-align: center;
+}
+
+.vista-control {
+  width: 100%;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+}
+
+.avisos-formato {
+  background: #fff8e8;
+}
+
+.pie {
+  text-align: center;
+  color: var(--pista);
+  font-size: 0.82rem;
+  margin-top: 2rem;
+}
+
+a {
+  color: var(--acento);
+}
+code {
+  background: #eef1f4;
+  padding: 0 0.25rem;
+  border-radius: 4px;
+}
+
+@media print {
+  .aviso {
+    position: static;
+  }
+  .no-imprimir,
+  .controles-visor {
+    display: none !important;
+  }
+  .tarjeta {
+    break-inside: avoid;
+  }
+  .tarjeta-visor {
+    width: auto;
+    margin-left: 0;
+  }
+}

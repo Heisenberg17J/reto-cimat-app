@@ -1,0 +1,26 @@
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+
+# Imagenes medicas y salidas: nunca al repositorio
+*.nii
+*.nii.gz
+salidas/
+
+# Empaquetado: PyInstaller genera build/ y dist/ (ver empaquetado/, docs/FASE0.md)
+build/
+dist/
+*.whl
+
+# Frontend (Fase 3): dependencias y compilado
+frontend/node_modules/
+frontend/dist/
+
+# Pesos de nnU-Net (~1 GB) y su zip: NUNCA a git (licencia BraTS); se descargan aparte (ver README)
+artefactos/nnunet/
+*.zip
+pesos_nnunet.zip
+
+# Datos de prueba (imagenes de BraTS 2018): no se versionan; ver docs/INICIO_SESION.md
+datos_prueba/

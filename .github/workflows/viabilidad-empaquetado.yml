@@ -1,0 +1,97 @@
+# Fase 0 - Viabilidad del empaquetado (ver docs/PLAN.md y docs/FASE0.md).
+#
+# En Windows y Linux, sin Python ni compiladores previos del usuario:
+#   1. Compila la rueda de pyradiomics==3.0.1 (en Windows con MSVC; no hay rueda publicada).
+#   2. Instala el nucleo con esa rueda y corre las pruebas que NO necesitan imagenes.
+#   3. Empaqueta con PyInstaller un CLI minimo (sin PyTorch/nnU-Net) y comprueba que arranca.
+# Sube como artefactos la rueda y el CLI empaquetado de cada sistema.
+#
+# Lo que este workflow NO puede cubrir (necesita un PC con Windows y datos_prueba/ de BraTS,
+# que no van en git): la regresion completa (1146 caracteristicas, riesgo -0.778728) y el
+# tiempo/RAM de nnU-Net en CPU. Son los pasos 3 y 4 de la Fase 0; ver docs/FASE0.md.
+
+name: Fase 0 - viabilidad del empaquetado
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "nucleo/**"
+      - "artefactos/**"
+      - "empaquetado/**"
+      - "pyproject.toml"
+      - "restricciones.txt"
+      - ".github/workflows/viabilidad-empaquetado.yml"
+
+defaults:
+  run:
+    shell: bash   # disponible en los runners de Windows; maneja igual los comodines (*.whl)
+
+jobs:
+  empaquetar:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # --- Paso 1: compilar la rueda de pyradiomics (no hay version publicada) ---
+      # En Windows usa el MSVC (Visual Studio Build Tools) que el runner ya trae.
+      - name: Dependencias para compilar
+        run: |
+          python -m pip install --upgrade pip
+          pip install "numpy==1.26.4" "versioneer==0.29" "setuptools>=68" wheel
+
+      - name: Compilar rueda de pyradiomics==3.0.1
+        run: pip wheel "pyradiomics==3.0.1" --no-build-isolation --no-deps -w ruedas
+
+      - name: Guardar la rueda
+        uses: actions/upload-artifact@v4
+        with:
+          name: pyradiomics-${{ matrix.os }}
+          path: ruedas/*.whl
+
+      # --- Paso 2: instalar el nucleo con esa rueda y correr las pruebas sin imagenes ---
+      - name: Instalar el nucleo y la rueda
+        run: |
+          pip install -c restricciones.txt -e ".[pruebas]"
+          pip install -c restricciones.txt ruedas/pyradiomics-*.whl
+
+      - name: Pruebas sin imagenes (artefactos integros + errores de entrada)
+        run: |
+          pytest tests/test_regresion.py::test_artefactos_integros \
+                 tests/test_regresion.py::test_errores_de_entrada -v
+
+      # --- Paso 5: empaquetar el CLI minimo y comprobar que arranca sin Python ---
+      - name: PyInstaller (CLI minimo, sin PyTorch/nnU-Net)
+        run: |
+          pip install pyinstaller
+          pyinstaller empaquetado/reto-cimat-cli.spec --noconfirm
+
+      - name: Comprobar que el binario arranca (debe dar ErrorEntrada, codigo 2)
+        run: |
+          BIN="dist/reto-cimat-analizar/reto-cimat-analizar"
+          [ -f "$BIN.exe" ] && BIN="$BIN.exe"
+          code=0
+          "$BIN" --caso no_existe || code=$?
+          echo "codigo de salida: $code"
+          if [ "$code" -ne 2 ]; then
+            echo "::error::el CLI empaquetado no arranco como se esperaba (codigo $code, se esperaba 2)"
+            exit 1
+          fi
+
+      - name: Guardar el CLI empaquetado
+        uses: actions/upload-artifact@v4
+        with:
+          name: reto-cimat-cli-${{ matrix.os }}
+          path: dist/reto-cimat-analizar/

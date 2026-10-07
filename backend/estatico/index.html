@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>reto-cimat-app · análisis de glioma</title>
+<style>
+  :root { --borde:#d0d4da; --acento:#2b5f9e; --fondo:#f6f7f9; }
+  * { box-sizing: border-box; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; margin:0;
+         background:var(--fondo); color:#1c2127; line-height:1.5; }
+  main { max-width: 860px; margin: 0 auto; padding: 1.2rem 1rem 3rem; }
+  h1 { font-size: 1.4rem; margin:.2rem 0; }
+  .aviso { background:#fff3cd; border:1px solid #e5c96b; border-radius:8px; padding:.7rem 1rem;
+           margin:.8rem 0; font-size:.92rem; }
+  .tarjeta { background:#fff; border:1px solid var(--borde); border-radius:10px; padding:1rem 1.2rem;
+             margin:1rem 0; }
+  label { display:block; font-weight:600; margin:.6rem 0 .2rem; }
+  .pista { font-weight:400; color:#5a626c; font-size:.85rem; }
+  input[type=number], input[type=file] { width:100%; padding:.45rem; border:1px solid var(--borde);
+             border-radius:6px; background:#fff; }
+  button { background:var(--acento); color:#fff; border:0; border-radius:7px; padding:.6rem 1.2rem;
+           font-size:1rem; cursor:pointer; margin-top:1rem; }
+  button:disabled { opacity:.5; cursor:default; }
+  progress { width:100%; height:1rem; }
+  .fila { display:flex; gap:1.2rem; flex-wrap:wrap; }
+  .fila > div { flex:1 1 200px; }
+  .vol { font-size:1.6rem; font-weight:700; color:var(--acento); }
+  .error { background:#f8d7da; border:1px solid #e0a3aa; border-radius:8px; padding:.7rem 1rem; }
+  img#vista { width:100%; border:1px solid var(--borde); border-radius:8px; }
+  a { color:var(--acento); }
+  code { background:#eef1f4; padding:0 .25rem; border-radius:4px; }
+  .oculto { display:none; }
+  ul.avisos { margin:.3rem 0; color:#8a6d1a; font-size:.9rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Análisis de glioma · segmentación y pronóstico</h1>
+  <div class="aviso" id="aviso"><strong>Prototipo de investigación.</strong> No es una herramienta clínica
+     ni sustituye el criterio médico. El pronóstico depende casi solo de la edad.</div>
+
+  <form id="form" class="tarjeta">
+    <label>Resonancias del paciente (t1, t1ce, t2 y flair)
+      <span class="pista">— en formato BraTS (NIfTI). Puede subir los 4 archivos sueltos o un .zip.</span></label>
+    <input type="file" id="archivos" multiple accept=".nii,.nii.gz,.gz,.zip" required>
+
+    <label>Edad (años) <span class="pista">— opcional. Sin ella no hay pronóstico: la edad lleva casi toda
+      la señal y no se imputa.</span></label>
+    <input type="number" id="edad" min="1" max="119" step="0.001" placeholder="p. ej. 62">
+
+    <label>Segmentación ya hecha <span class="pista">— opcional (avanzado). Si no la sube, se intentará con
+      nnU-Net en esta máquina (tarda minutos en CPU).</span></label>
+    <input type="file" id="segmentacion" accept=".nii,.nii.gz,.gz">
+
+    <button type="submit" id="enviar">Analizar paciente</button>
+  </form>
+
+  <div class="tarjeta oculto" id="panel-progreso">
+    <strong>Analizando…</strong> <span id="etapa"></span>
+    <progress id="barra" max="1" value="0"></progress>
+  </div>
+
+  <div class="tarjeta error oculto" id="panel-error"></div>
+
+  <div class="oculto" id="panel-resultado">
+    <div class="tarjeta">
+      <h2>Volúmenes</h2>
+      <div class="fila">
+        <div><div class="vol" id="vol-wt">—</div>tumor completo (WT) cm³</div>
+        <div><div class="vol" id="vol-tc">—</div>núcleo (TC) cm³</div>
+        <div><div class="vol" id="vol-et">—</div>realce (ET) cm³</div>
+      </div>
+    </div>
+    <div class="tarjeta">
+      <h2>Pronóstico</h2>
+      <div id="pronostico"></div>
+    </div>
+    <div class="tarjeta">
+      <h2>Vista de control (FLAIR + segmentación)</h2>
+      <img id="vista" alt="vista de control">
+      <p id="descargas" class="pista"></p>
+    </div>
+  </div>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const CLASE_VOL = { WT:"vol-wt", TC:"vol-tc", ET:"vol-et" };
+
+// desempeno_esperado es {edad:{cindex,...}, coxnet:{cindex,...}}
+function desempeno(d) {
+  if (!d) return "";
+  if (typeof d === "string") return d;
+  return `c-index ${d.coxnet?.cindex} (modelo) ≈ ${d.edad?.cindex} (edad sola)`;
+}
+
+$("form").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  $("panel-error").classList.add("oculto");
+  $("panel-resultado").classList.add("oculto");
+  $("enviar").disabled = true;
+
+  const fd = new FormData();
+  for (const f of $("archivos").files) fd.append("archivos", f);
+  if ($("edad").value) fd.append("edad", $("edad").value);
+  if ($("segmentacion").files[0]) fd.append("segmentacion", $("segmentacion").files[0]);
+
+  try {
+    const r = await fetch("/api/analisis", { method:"POST", body: fd });
+    if (!r.ok) throw new Error((await r.json()).detail || "no se pudo iniciar el análisis");
+    const { id } = await r.json();
+    $("panel-progreso").classList.remove("oculto");
+    seguir(id);
+  } catch (e) {
+    mostrarError(e.message);
+  }
+});
+
+async function seguir(id) {
+  const r = await fetch(`/api/analisis/${id}`);
+  const e = await r.json();
+  $("etapa").textContent = e.etapa ? `(${e.etapa})` : "(en cola)";
+  $("barra").value = e.fraccion || 0;
+  if (e.estado === "procesando" || e.estado === "en_cola") {
+    setTimeout(() => seguir(id), 1000);
+  } else if (e.estado === "error") {
+    $("panel-progreso").classList.add("oculto");
+    mostrarError(e.error);
+  } else if (e.estado === "terminado") {
+    $("panel-progreso").classList.add("oculto");
+    mostrarResultado(id, e);
+  }
+}
+
+function mostrarError(msg) {
+  $("panel-error").textContent = "No se pudo completar: " + msg;
+  $("panel-error").classList.remove("oculto");
+  $("enviar").disabled = false;
+}
+
+function mostrarResultado(id, e) {
+  const res = e.resultado;
+  for (const [reg, campo] of Object.entries(CLASE_VOL))
+    $(campo).textContent = res.volumen_cm3[reg].toFixed(2);
+
+  const p = res.pronostico;
+  const cont = $("pronostico");
+  if (p.aplica) {
+    cont.innerHTML = `<p><strong>Supervivencia estimada: ${p.clase}</strong>
+        (~${Math.round(p.dias_mediana_estimada)} días).</p>
+      <p class="pista">Desempeño esperado: ${desempeno(p.desempeno_esperado)}. Recuerde: el modelo depende casi solo
+        de la edad.</p>`;
+  } else {
+    cont.innerHTML = `<p><strong>No aplica.</strong> ${p.motivo}</p>`;
+  }
+
+  const avisos = res.avisos_formato || [];
+  if (avisos.length)
+    cont.innerHTML += `<ul class="avisos">` + avisos.map(a => `<li>Aviso de formato: ${a}</li>`).join("") + `</ul>`;
+
+  $("vista").src = res.archivos["vista.png"] + "?t=" + Date.now();
+  $("descargas").innerHTML = "Descargar: "
+    + ["segmentacion.nii.gz", "caracteristicas.csv", "resultado.json"]
+        .filter(n => res.archivos[n])
+        .map(n => `<a href="${res.archivos[n]}">${n}</a>`).join(" · ");
+  $("panel-resultado").classList.remove("oculto");
+  $("enviar").disabled = false;
+}
+</script>
+</body>
+</html>
