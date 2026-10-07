@@ -1,0 +1,5 @@
+# Byte-exactitud entre plataformas: git NO debe convertir finales de línea.
+# Imprescindible para los artefactos verificados con sha256 (tests/test_regresion.py::
+# test_artefactos_integros): en Windows, autocrlf convertiría los YAML/JSON a CRLF y
+# rompería los hashes. '-text' trata todos los archivos como binarios para el fin de línea.
+* -text
