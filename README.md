@@ -106,3 +106,11 @@ Si falta `datos_prueba/`, las pruebas que la necesitan se saltan.
 
 Solo se aceptan NIfTI, no DICOM, que suele traer datos del paciente. Los archivos temporales se borran al terminar.
 Ninguna imagen médica debe subirse a este repositorio (`.gitignore` excluye `*.nii*`).
+
+## Casos de ejemplo (opcional)
+
+Para probar la app sin archivos propios, hay 2 casos de la colección **UPENN-GBM** (TCIA, **CC BY 4.0**) publicados
+como asset del Release: **`ejemplos-upenn.zip`**. Descárgalo y descomprímelo de modo que la carpeta `ejemplos/` quede
+**junto al ejecutable** (`reto-cimat-app.exe`); la app los mostrará en "Casos de ejemplo". En desarrollo se leen de
+`datos_prueba/` (o de `NUCLEO_EJEMPLOS`). Las imágenes de BraTS no se redistribuyen; solo las de UPENN-GBM (CC BY,
+atribución en la sección "Acerca de").

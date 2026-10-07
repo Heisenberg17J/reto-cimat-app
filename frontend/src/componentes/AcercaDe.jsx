@@ -98,11 +98,22 @@ export default function AcercaDe({ onCerrar }) {
           <em>Cancer Res</em> 2017) · IBSI (Zwanenburg et al., <em>Radiology</em> 2020).
         </p>
 
-        <hr />
+        <h3>Datos de ejemplo</h3>
         <p className="pista">
-          Estudiantes de Ingeniería de Sistemas y Electrónica, Universidad Antonio José Camacho (Cali, Colombia) —
-          semilleros AppliScience y SEMOSIMA.
+          Los casos de ejemplo provienen de la colección <strong>UPENN-GBM</strong> (TCIA), bajo licencia{" "}
+          <strong>CC BY 4.0</strong>:
         </p>
+        <ol className="citas">
+          <li>
+            Bakas S., Sako C., Akbari H., et al. “The University of Pennsylvania glioblastoma (UPenn-GBM) cohort:
+            advanced MRI, clinical, genomics, &amp; radiomics”. <em>Sci Data</em> 9, 453 (2022).{" "}
+            <Enlace href="https://doi.org/10.1038/s41597-022-01560-7">10.1038/s41597-022-01560-7</Enlace>
+          </li>
+          <li>
+            UPENN-GBM mpMRI (Version 2) [Data set]. <em>The Cancer Imaging Archive</em> (2021).{" "}
+            <Enlace href="https://doi.org/10.7937/TCIA.709X-DN49">10.7937/TCIA.709X-DN49</Enlace>
+          </li>
+        </ol>
       </div>
     </div>
   );
