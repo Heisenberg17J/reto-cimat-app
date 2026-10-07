@@ -10,11 +10,6 @@ export default function Guia({ onCerrar }) {
         <button className="modal-cerrar" onClick={onCerrar} aria-label="Cerrar">×</button>
         <h2>Guía rápida</h2>
 
-        <p className="pista">
-          Prototipo de investigación, <strong>no es una herramienta clínica</strong>. El pronóstico depende casi solo
-          de la edad.
-        </p>
-
         <h3>Qué hace</h3>
         <p>
           A partir de las 4 resonancias de un paciente con glioma (y, si se conoce, la edad): segmenta el tumor,

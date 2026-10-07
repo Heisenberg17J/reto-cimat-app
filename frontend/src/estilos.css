@@ -858,3 +858,14 @@ code {
 @media print {
   .boton-guia { display: none !important; }
 }
+
+/* Lista de casos de ejemplo */
+.ejemplos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+.ejemplos button {
+  text-align: left;
+}

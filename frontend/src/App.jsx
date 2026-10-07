@@ -4,7 +4,7 @@ import Carga from "./componentes/Carga.jsx";
 import Progreso from "./componentes/Progreso.jsx";
 import Resultados from "./componentes/Resultados.jsx";
 import Guia from "./componentes/Guia.jsx";
-import { borrarAnalisis, estadoPesos } from "./api.js";
+import { analizarEjemplo, borrarAnalisis, estadoPesos, listarEjemplos } from "./api.js";
 
 export default function App() {
   const [fase, setFase] = useState("inicio"); // inicio | carga | progreso | resultados
@@ -12,11 +12,24 @@ export default function App() {
   const [resultado, setResultado] = useState(null);
   const [error, setError] = useState(null);
   const [pesos, setPesos] = useState(null);
+  const [ejemplos, setEjemplos] = useState([]);
   const [mostrarGuia, setMostrarGuia] = useState(false);
 
   useEffect(() => {
     estadoPesos().then(setPesos).catch(() => {});
+    listarEjemplos().then(setEjemplos).catch(() => {});
   }, []);
+
+  async function usarEjemplo(idEjemplo) {
+    setError(null);
+    try {
+      const { id } = await analizarEjemplo(idEjemplo);
+      setAnalisisId(id);
+      setFase("progreso");
+    } catch (e) {
+      setError(e.message);
+    }
+  }
 
   function reiniciar() {
     if (analisisId) borrarAnalisis(analisisId).catch(() => {});
@@ -35,7 +48,13 @@ export default function App() {
 
       <main>
         {fase === "inicio" && (
-          <Inicio onEmpezar={() => setFase("carga")} pesos={pesos} setPesos={setPesos} />
+          <Inicio
+            onEmpezar={() => setFase("carga")}
+            pesos={pesos}
+            setPesos={setPesos}
+            ejemplos={ejemplos}
+            onEjemplo={usarEjemplo}
+          />
         )}
 
         {fase === "carga" && (

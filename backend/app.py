@@ -9,6 +9,10 @@
 El frontend compilado (Fase 3) o la pagina minima de `estatico/` se sirven en /.
 """
 
+import json
+import os
+import shutil
+import sys
 import zipfile
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -55,6 +59,46 @@ async def _recibir(subida: UploadFile, entrada: Path):
         await _guardar_subida(subida, entrada / nombre)
 
 
+def carpeta_ejemplos() -> Path | None:
+    """Carpeta con casos de ejemplo (imágenes BraTS); NO se distribuye (licencia).
+
+    Orden: NUCLEO_EJEMPLOS, 'ejemplos/' junto al .exe (app congelada), o datos_prueba/ (desarrollo).
+    """
+    candidatos = []
+    if os.environ.get("NUCLEO_EJEMPLOS"):
+        candidatos.append(Path(os.environ["NUCLEO_EJEMPLOS"]))
+    if getattr(sys, "frozen", False):
+        candidatos.append(Path(sys.executable).resolve().parent / "ejemplos")
+    candidatos.append(AQUI.parent / "datos_prueba")
+    for c in candidatos:
+        if c.is_dir():
+            return c
+    return None
+
+
+def listar_ejemplos() -> list[dict]:
+    """Casos disponibles (carpetas con las 4 resonancias). Metadatos opcionales en ejemplos.json."""
+    base = carpeta_ejemplos()
+    if base is None:
+        return []
+    meta = {}
+    if (base / "ejemplos.json").is_file():
+        try:
+            meta = json.loads((base / "ejemplos.json").read_text())
+        except (ValueError, OSError):
+            meta = {}
+    salida = []
+    for sub in sorted(p for p in base.iterdir() if p.is_dir()):
+        try:
+            buscar_modalidades(sub)
+        except ErrorEntrada:
+            continue
+        m = meta.get(sub.name, {})
+        salida.append({"id": sub.name, "nombre": m.get("nombre", sub.name), "edad": m.get("edad"),
+                       "tiene_segmentacion": (sub / "segmentacion.nii.gz").is_file()})
+    return salida
+
+
 def crear_app(raiz_datos=None) -> FastAPI:
     configurar_registro()
     gestor = GestorTareas(raiz_datos)
@@ -81,6 +125,34 @@ def crear_app(raiz_datos=None) -> FastAPI:
     def descargar_pesos():
         gestor_pesos.iniciar()
         return gestor_pesos.info()
+
+    @app.get("/api/ejemplos")
+    def ejemplos():
+        """Casos de ejemplo disponibles en el equipo (vacío si no hay ninguno)."""
+        return listar_ejemplos()
+
+    @app.post("/api/ejemplos/{id}", status_code=202)
+    def analizar_ejemplo(id: str):
+        base = carpeta_ejemplos()
+        caso = base / Path(id).name if base else None   # Path(id).name: anti path traversal
+        if caso is None or not caso.is_dir():
+            raise HTTPException(404, "ejemplo no encontrado")
+        try:
+            rutas = buscar_modalidades(caso)
+        except ErrorEntrada as e:
+            raise HTTPException(400, str(e))
+
+        info = next((e for e in listar_ejemplos() if e["id"] == caso.name), {})
+        tarea = gestor.crear()
+        for m, p in rutas.items():
+            shutil.copy(p, tarea.entrada / f"{m}.nii.gz")
+        seg_path = None
+        seg = caso / "segmentacion.nii.gz"
+        if seg.is_file():                      # usar la segmentación del ejemplo: demo rápida
+            seg_path = tarea.carpeta / "segmentacion_entrada.nii.gz"
+            shutil.copy(seg, seg_path)
+        gestor.encolar(tarea, edad=info.get("edad"), segmentacion=seg_path, folds=(0,))
+        return {"id": tarea.id}
 
     @app.post("/api/analisis", status_code=202)
     async def crear_analisis(

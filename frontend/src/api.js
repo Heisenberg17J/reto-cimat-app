@@ -38,3 +38,15 @@ export async function descargarPesos() {
   const r = await fetch("/api/pesos/descargar", { method: "POST" });
   return r.json();
 }
+
+export async function listarEjemplos() {
+  const r = await fetch("/api/ejemplos");
+  if (!r.ok) return [];
+  return r.json();
+}
+
+export async function analizarEjemplo(id) {
+  const r = await fetch(`/api/ejemplos/${id}`, { method: "POST" });
+  if (!r.ok) throw new Error((await r.json()).detail || "no se pudo iniciar el ejemplo");
+  return r.json();
+}

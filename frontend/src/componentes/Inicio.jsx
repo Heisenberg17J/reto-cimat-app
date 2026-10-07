@@ -1,6 +1,6 @@
 import AvisoPesos from "./AvisoPesos.jsx";
 
-export default function Inicio({ onEmpezar, pesos, setPesos }) {
+export default function Inicio({ onEmpezar, pesos, setPesos, ejemplos = [], onEjemplo }) {
   return (
     <>
       <AvisoPesos pesos={pesos} setPesos={setPesos} />
@@ -28,6 +28,23 @@ export default function Inicio({ onEmpezar, pesos, setPesos }) {
           Analizar un paciente
         </button>
       </section>
+
+      {ejemplos.length > 0 && (
+        <section className="tarjeta">
+          <h2>Casos de ejemplo</h2>
+          <p className="pista">
+            ¿No tienes archivos a mano? Prueba la app con un caso ya cargado (datos de BraTS, solo para demostración).
+          </p>
+          <div className="ejemplos">
+            {ejemplos.map((e) => (
+              <button key={e.id} className="secundario" onClick={() => onEjemplo(e.id)}>
+                {e.nombre}
+                {e.edad != null && <span className="pista"> · {e.edad} años</span>}
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="tarjeta creditos">
         <img
