@@ -3,6 +3,7 @@ import Inicio from "./componentes/Inicio.jsx";
 import Carga from "./componentes/Carga.jsx";
 import Progreso from "./componentes/Progreso.jsx";
 import Resultados from "./componentes/Resultados.jsx";
+import Guia from "./componentes/Guia.jsx";
 import { borrarAnalisis, estadoPesos } from "./api.js";
 
 export default function App() {
@@ -11,6 +12,7 @@ export default function App() {
   const [resultado, setResultado] = useState(null);
   const [error, setError] = useState(null);
   const [pesos, setPesos] = useState(null);
+  const [mostrarGuia, setMostrarGuia] = useState(false);
 
   useEffect(() => {
     estadoPesos().then(setPesos).catch(() => {});
@@ -26,6 +28,11 @@ export default function App() {
 
   return (
     <div className="app">
+      <button className="boton-guia" onClick={() => setMostrarGuia(true)} aria-label="Abrir la guía">
+        <span aria-hidden="true">?</span> Guía
+      </button>
+      {mostrarGuia && <Guia onCerrar={() => setMostrarGuia(false)} />}
+
       <main>
         {fase === "inicio" && (
           <Inicio onEmpezar={() => setFase("carga")} pesos={pesos} setPesos={setPesos} />

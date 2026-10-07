@@ -801,3 +801,60 @@ code {
     transform: none;
   }
 }
+
+/* Botón flotante de guía + modal (añadido) */
+.boton-guia {
+  position: fixed;
+  top: 0.8rem;
+  right: 0.8rem;
+  z-index: 20;
+  background: var(--acento);
+  color: #fff;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+.boton-guia span {
+  font-weight: 700;
+  margin-right: 0.2rem;
+}
+.modal-fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem 1rem;
+  overflow-y: auto;
+}
+.modal {
+  background: #fff;
+  color: #1c2127;
+  border-radius: 10px;
+  max-width: 680px;
+  width: 100%;
+  padding: 1.4rem 1.6rem 1.8rem;
+  position: relative;
+}
+.modal h3 {
+  margin: 1.1rem 0 0.3rem;
+  font-size: 1.05rem;
+}
+.modal-cerrar {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.7rem;
+  background: transparent;
+  border: 0;
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+@media print {
+  .boton-guia { display: none !important; }
+}
