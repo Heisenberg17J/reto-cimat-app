@@ -48,7 +48,7 @@ class Tarea:
 
     def estado_publico(self) -> dict:
         d = {"id": self.id, "estado": self.estado, "etapa": self.etapa,
-             "fraccion": round(self.fraccion, 3)}
+             "fraccion": round(self.fraccion, 3), "con_referencia": self.referencia is not None}
         if self.estado == "error":
             d["error"] = self.error
             d["es_error_entrada"] = self.es_error_entrada

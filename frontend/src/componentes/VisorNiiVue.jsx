@@ -13,23 +13,40 @@ const CMAP_BRATS = {
   labels: ["fondo", "necrosis / no realzado", "edema", "realce (ET)"],
 };
 
-export default function VisorNiiVue({ id }) {
+// Diferencias en el tumor completo (WT): 1 acuerdo (gris), 2 solo el modelo (cian), 3 solo el radiólogo (magenta).
+const CMAP_DIFERENCIAS = {
+  R: [0, 200, 0, 255],
+  G: [0, 200, 208, 61],
+  B: [0, 200, 255, 245],
+  A: [0, 255, 255, 255],
+  I: [0, 1, 2, 3],
+  labels: ["fondo", "acuerdo", "solo el modelo", "solo el radiólogo"],
+};
+
+const CAPAS = {
+  modelo: { archivo: "segmentacion.nii.gz", cmap: CMAP_BRATS, texto: "Modelo" },
+  radiologo: { archivo: "referencia.nii.gz", cmap: CMAP_BRATS, texto: "Radiólogo" },
+  diferencias: { archivo: "diferencias.nii.gz", cmap: CMAP_DIFERENCIAS, texto: "Diferencias (WT)" },
+};
+
+export default function VisorNiiVue({ id, conReferencia = false }) {
   const lienzoRef = useRef(null);
   const nvRef = useRef(null);
   const [modalidad, setModalidad] = useState("flair");
   const [opacidad, setOpacidad] = useState(0.5);
+  const [capa, setCapa] = useState("modelo");
   const [fallo, setFallo] = useState(false);
 
-  async function cargar(mod, op) {
+  async function cargar(mod, op, c = "modelo") {
     const nv = nvRef.current;
     if (!nv) return;
     await nv.loadVolumes([
       { url: urlArchivo(id, `${mod}.nii.gz`) },
-      { url: urlArchivo(id, "segmentacion.nii.gz"), opacity: op },
+      { url: urlArchivo(id, CAPAS[c].archivo), opacity: op },
     ]);
     const seg = nv.volumes[1];
     if (seg?.setColormapLabel) {
-      seg.setColormapLabel(CMAP_BRATS);
+      seg.setColormapLabel(CAPAS[c].cmap);
       nv.updateGLVolume();
     }
   }
@@ -64,7 +81,12 @@ export default function VisorNiiVue({ id }) {
 
   function cambiarModalidad(e) {
     setModalidad(e.target.value);
-    cargar(e.target.value, opacidad).catch(() => setFallo(true));
+    cargar(e.target.value, opacidad, capa).catch(() => setFallo(true));
+  }
+
+  function cambiarCapa(e) {
+    setCapa(e.target.value);
+    cargar(modalidad, opacidad, e.target.value).catch(() => setFallo(true));
   }
 
   function cambiarOpacidad(e) {
@@ -86,6 +108,18 @@ export default function VisorNiiVue({ id }) {
             ))}
           </select>
         </label>
+        {conReferencia && (
+          <label>
+            Máscara
+            <select value={capa} onChange={cambiarCapa}>
+              {Object.entries(CAPAS).map(([k, c]) => (
+                <option key={k} value={k}>
+                  {c.texto}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
         <label>
           Opacidad de la máscara: {Math.round(opacidad * 100)}%
           <input type="range" min="0" max="1" step="0.05" value={opacidad} onChange={cambiarOpacidad} />
@@ -94,11 +128,19 @@ export default function VisorNiiVue({ id }) {
 
       <canvas ref={lienzoRef} className="lienzo" />
 
-      <div className="leyenda">
-        <span><i style={{ background: "rgb(230,30,30)" }} /> necrosis / no realzado</span>
-        <span><i style={{ background: "rgb(40,200,60)" }} /> edema</span>
-        <span><i style={{ background: "rgb(255,215,0)" }} /> realce (ET)</span>
-      </div>
+      {capa === "diferencias" ? (
+        <div className="leyenda">
+          <span><i style={{ background: "rgb(200,200,200)" }} /> acuerdo</span>
+          <span><i style={{ background: "rgb(0,208,255)" }} /> solo el modelo (de más)</span>
+          <span><i style={{ background: "rgb(255,61,245)" }} /> solo el radiólogo (no detectado)</span>
+        </div>
+      ) : (
+        <div className="leyenda">
+          <span><i style={{ background: "rgb(230,30,30)" }} /> necrosis / no realzado</span>
+          <span><i style={{ background: "rgb(40,200,60)" }} /> edema</span>
+          <span><i style={{ background: "rgb(255,215,0)" }} /> realce (ET)</span>
+        </div>
+      )}
 
       {fallo && (
         <p className="error">

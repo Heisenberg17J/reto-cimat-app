@@ -28,13 +28,15 @@ export default function AcercaDe({ onCerrar }) {
         <h3>Enfoque</h3>
         <p><strong>Datos:</strong> BraTS 2018, 285 pacientes; 163 con dato de supervivencia.</p>
         <p>
-          <strong>Segmentación:</strong> nnU-Net 3D, 5 folds × 100 épocas. Dice fuera de fold: tumor completo 0,907 ·
-          núcleo 0,842 · realce 0,769.
+          <strong>Segmentación:</strong> nnU-Net v2 3D, entrenado por regiones (WT/TC/ET), 5 folds × 100 épocas, con
+          un posprocesado que descarta realces de menos de 500 voxeles.
         </p>
         <p>
-          <strong>Pronóstico:</strong> Cox con selección de características por algoritmo genético, sobre 1.146
-          características radiómicas extraídas con PyRadiomics. Comparado contra edad sola y Cox Elastic Net, con
-          validación cruzada anidada.
+          <strong>Pronóstico:</strong> 1.146 características radiómicas (PyRadiomics) de cada tumor, filtradas por
+          robustez frente a la segmentación (Spearman ≥ 0,85 entre máscaras manuales y predichas: quedan 935). Se
+          compararon tres modelos con validación cruzada anidada (5 × 10 folds): edad sola, Cox Elastic Net y Cox
+          con selección de características por algoritmo genético. La app usa el <strong>Cox Elastic Net</strong>{" "}
+          final, entrenado con los 163 pacientes.
         </p>
         <p>
           Segmentación y pronóstico comparten la misma partición, de modo que la radiómica se calcula sobre máscaras
@@ -43,8 +45,57 @@ export default function AcercaDe({ onCerrar }) {
 
         <h3>Resultados</h3>
         <p>
+          <strong>Segmentación</strong> (fuera de fold; métricas oficiales de BraTS):
+        </p>
+        <div className="tabla-desplazable">
+          <table className="tabla-metricas">
+            <thead>
+              <tr>
+                <th>Región</th>
+                <th>Dice (285)</th>
+                <th>HD95 mediano</th>
+                <th>Dice (163 HGG)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><th>Tumor completo (WT)</th><td>0,907</td><td>3,6 mm</td><td>0,903</td></tr>
+              <tr><th>Núcleo (TC)</th><td>0,842</td><td>3,5 mm</td><td>0,897</td></tr>
+              <tr><th>Realce (ET)</th><td>0,769</td><td>2,2 mm</td><td>0,831</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="pista">
+          Con «Validar con la segmentación del radiólogo», la app calcula estas mismas métricas para un caso nuevo y lo
+          ubica en esta distribución.
+        </p>
+
+        <p>
+          <strong>Pronóstico</strong> (163 HGG, c-index fuera de fold):
+        </p>
+        <div className="tabla-desplazable">
+          <table className="tabla-metricas">
+            <thead>
+              <tr>
+                <th>Análisis</th>
+                <th>Edad sola</th>
+                <th>Elastic Net</th>
+                <th>Genético</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><th>Principal: máscaras predichas + filtro (935)</th><td><strong>0,624</strong></td><td>0,622</td><td>0,605</td></tr>
+              <tr><th>Filtro dentro de cada fold</th><td>0,624</td><td>0,622</td><td>0,602</td></tr>
+              <tr><th>Sin filtro (1.146)</th><td>0,624</td><td>0,628</td><td>0,608</td></tr>
+              <tr><th>Máscaras manuales + filtro</th><td>0,624</td><td>0,628</td><td>0,602</td></tr>
+              <tr><th>Con estado de resección</th><td>0,618</td><td>0,617</td><td>0,596</td></tr>
+              <tr><th>Control: supervivencia permutada</th><td>0,546</td><td>0,525</td><td>0,527</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
           <strong>La radiómica no supera a la edad.</strong> C-index: edad 0,624 · Elastic Net 0,622 · genético 0,605,
-          sin diferencias significativas.
+          sin diferencias significativas (t corregida de Nadeau-Bengio, p ≥ 0,48). Las máscaras predichas rinden igual
+          que las manuales.
         </p>
         <p>
           El algoritmo genético reporta 0,70 según su criterio interno frente a 0,605 medido sobre pacientes no vistos
@@ -53,7 +104,8 @@ export default function AcercaDe({ onCerrar }) {
         </p>
         <p>
           Con 163 pacientes y más de mil características, las diferencias pequeñas no son distinguibles del ruido. Un
-          solo centro aporta el 52 % de la cohorte.
+          solo centro aporta el 52 % de la cohorte. La validación mide el desempeño con pacientes nuevos de los mismos
+          centros, no en otro hospital.
         </p>
 
         <blockquote className="aviso-academico">

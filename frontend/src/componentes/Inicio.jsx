@@ -33,13 +33,15 @@ export default function Inicio({ onEmpezar, pesos, setPesos, ejemplos = [], onEj
         <section className="tarjeta">
           <h2>Casos de ejemplo</h2>
           <p className="pista">
-            ¿No tienes archivos a mano? Prueba la app con un caso ya cargado (datos de BraTS, solo para demostración).
+            ¿No tienes archivos a mano? Prueba la app con un caso ya cargado (solo para demostración). Los que traen la
+            segmentación del radiólogo muestran además qué tan bien segmentó nuestro modelo.
           </p>
           <div className="ejemplos">
             {ejemplos.map((e) => (
               <button key={e.id} className="secundario" onClick={() => onEjemplo(e.id)}>
                 {e.nombre}
                 {e.edad != null && <span className="pista"> · {e.edad} años</span>}
+                {e.tiene_referencia && <span className="insignia">con segmentación del radiólogo</span>}
               </button>
             ))}
           </div>

@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { crearAnalisis } from "../api.js";
-import { MODALIDADES, ETIQUETA, reconocer, esZip, esNifti } from "../modalidades.js";
+import { MODALIDADES, ETIQUETA, reconocer, esZip, esNifti, esMascaraBrats, idDelCaso } from "../modalidades.js";
 
 export default function Carga({ onIniciado, onCancelar, pesos }) {
   const sinPesos = pesos && !pesos.instalados;
@@ -10,6 +10,8 @@ export default function Carga({ onIniciado, onCancelar, pesos }) {
   const [edad, setEdad] = useState("");
   const [modo, setModo] = useState("rapido");
   const [segmentacion, setSegmentacion] = useState(null);
+  const [referencia, setReferencia] = useState(null); // segmentación del radiólogo (se compara)
+  const [referenciaAuto, setReferenciaAuto] = useState(false); // detectada entre los archivos
   const [enviando, setEnviando] = useState(false);
   const [errorLocal, setErrorLocal] = useState(null);
   const carpetaRef = useRef(null);
@@ -24,9 +26,15 @@ export default function Carga({ onIniciado, onCancelar, pesos }) {
       return;
     }
     const soloNii = archivos.filter(esNifti);
+    const mascaras = soloNii.filter(esMascaraBrats);
+    const resonancias = soloNii.filter((f) => !esMascaraBrats(f));
     setZip(null);
-    setNiftis(soloNii);
-    setAsignacion(reconocer(soloNii));
+    setNiftis(resonancias);
+    setAsignacion(reconocer(resonancias));
+    if (mascaras.length === 1 && !segmentacion) {
+      setReferencia(mascaras[0]);
+      setReferenciaAuto(true);
+    }
   }
 
   function alSoltar(e) {
@@ -61,6 +69,9 @@ export default function Carga({ onIniciado, onCancelar, pesos }) {
     if (edad) fd.append("edad", edad);
     fd.append("modo", modo);
     if (segmentacion) fd.append("segmentacion", segmentacion, "segmentacion.nii.gz");
+    if (referencia) fd.append("referencia", referencia, "referencia.nii.gz");
+    const id = !zip && idDelCaso(asignacion.t1);
+    if (id) fd.append("id_caso", id);
 
     setEnviando(true);
     try {
@@ -105,7 +116,12 @@ export default function Carga({ onIniciado, onCancelar, pesos }) {
         </div>
       </div>
 
-      {zip && <p className="ok">Archivo comprimido: <strong>{zip.name}</strong></p>}
+      {zip && (
+        <p className="ok">
+          Archivo comprimido: <strong>{zip.name}</strong>. Si trae la segmentación manual de BraTS
+          (<code>&lt;id&gt;_seg.nii.gz</code>), se usará para validar el modelo.
+        </p>
+      )}
 
       {!zip && niftis.length > 0 && (
         <table className="asignacion">
@@ -171,15 +187,51 @@ export default function Carga({ onIniciado, onCancelar, pesos }) {
         <p className="pista">Solo aplica si no subes una segmentación. En CPU, el modo completo tarda bastante más.</p>
       </fieldset>
 
+      <fieldset className="validacion-carga" disabled={!!segmentacion}>
+        <legend>Validar con la segmentación del radiólogo (opcional)</legend>
+        <p className="pista">
+          Si tiene la segmentación manual del tumor (etiquetas BraTS 1, 2 y 4), la app la compara con la de nuestro
+          modelo: Dice, distancia de Hausdorff 95, sensibilidad y especificidad, y en qué lugar queda el caso frente a
+          los 285 pacientes del estudio. No reemplaza al modelo: los dos resultados se muestran lado a lado.
+        </p>
+        {referencia ? (
+          <p className="ok">
+            Segmentación del radiólogo: <strong>{referencia.name}</strong>
+            {referenciaAuto && " (detectada entre los archivos)"}.{" "}
+            <button
+              type="button"
+              className="enlace"
+              onClick={() => {
+                setReferencia(null);
+                setReferenciaAuto(false);
+              }}
+            >
+              Quitar
+            </button>
+          </p>
+        ) : (
+          <input
+            type="file"
+            accept=".nii,.nii.gz,.gz"
+            onChange={(e) => {
+              setReferencia(e.target.files[0] || null);
+              setReferenciaAuto(false);
+            }}
+          />
+        )}
+      </fieldset>
+
       <details className="avanzado">
-        <summary>Opción avanzada: subir una segmentación ya hecha</summary>
+        <summary>Opción avanzada: subir una segmentación ya hecha (reemplaza al modelo)</summary>
         <p className="pista">
           Si no la sube, se segmentará con nuestro modelo (entrenado con nnU-Net sobre BraTS 2018) en este
-          equipo (tarda minutos en CPU).
+          equipo (tarda minutos en CPU). Esta máscara <strong>sustituye</strong> a la del modelo; para
+          compararlas, use la opción de validación de arriba.
         </p>
         <input
           type="file"
           accept=".nii,.nii.gz,.gz"
+          disabled={!!referencia}
           onChange={(e) => setSegmentacion(e.target.files[0] || null)}
         />
       </details>

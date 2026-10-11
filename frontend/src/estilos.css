@@ -900,3 +900,118 @@ code {
   border-top: 1px solid var(--borde);
   margin: 1.2rem 0;
 }
+
+/* =========================================================
+   VALIDACIÓN FRENTE AL RADIÓLOGO
+   ========================================================= */
+
+fieldset.validacion-carga {
+  margin-top: 1rem;
+  border: 1px solid var(--azul-uniajc);
+  border-radius: 7px;
+  padding: 0.7rem 1rem 0.9rem;
+  background: var(--azul-claro);
+}
+fieldset.validacion-carga:disabled {
+  opacity: 0.5;
+}
+fieldset.validacion-carga legend {
+  padding: 0 0.4rem;
+  color: var(--azul-uniajc);
+  font-weight: 600;
+}
+.enlace {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--azul-uniajc);
+  font-size: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.insignia {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.05rem 0.5rem;
+  border-radius: 999px;
+  background: var(--azul-claro);
+  color: var(--azul-uniajc);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.tabla-desplazable {
+  overflow-x: auto;
+}
+.tabla-metricas {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.86rem;
+  font-variant-numeric: tabular-nums;
+}
+.tabla-metricas th,
+.tabla-metricas td {
+  border-bottom: 1px solid var(--borde-suave);
+  padding: 0.45rem 0.55rem;
+  text-align: right;
+  white-space: nowrap;
+}
+.tabla-metricas thead th {
+  color: var(--texto-secundario);
+  font-weight: 600;
+  border-bottom: 1px solid var(--borde);
+}
+.tabla-metricas th:first-child {
+  text-align: left;
+  color: var(--texto);
+}
+.histogramas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+.histograma {
+  margin: 0;
+}
+.histograma figcaption {
+  font-size: 0.84rem;
+  color: var(--texto-secundario);
+}
+.histograma svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.histograma .barra {
+  fill: #a9c1d9;
+}
+.histograma .barra-caso {
+  fill: var(--azul-uniajc);
+}
+.histograma .zona-hover {
+  fill: transparent;
+}
+.histograma .zona-hover:hover {
+  fill: rgba(0, 59, 112, 0.06);
+}
+.histograma .eje {
+  stroke: var(--borde);
+  stroke-width: 1;
+}
+.histograma .mediana {
+  stroke: var(--texto-suave);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+.histograma .marca-caso {
+  stroke: var(--texto);
+  stroke-width: 2;
+}
+.histograma .texto-caso {
+  font-size: 10px;
+  font-weight: 600;
+  fill: var(--texto);
+}
+.histograma .texto-eje {
+  font-size: 9px;
+  fill: var(--texto-suave);
+}

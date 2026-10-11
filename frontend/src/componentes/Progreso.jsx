@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { estadoAnalisis } from "../api.js";
 
-const ETAPAS = ["entrada", "segmentacion", "radiomica", "pronostico", "salida"];
+const TODAS = ["entrada", "segmentacion", "radiomica", "pronostico", "validacion", "salida"];
 const TEXTO = {
   entrada: "Leyendo las resonancias",
   segmentacion: "Segmentando el tumor (puede tardar minutos en CPU)",
   radiomica: "Calculando la radiómica",
   pronostico: "Estimando el pronóstico",
+  validacion: "Comparando con la segmentación del radiólogo",
   salida: "Preparando los resultados",
 };
 
@@ -14,6 +15,7 @@ export default function Progreso({ id, onTerminado, onError }) {
   const [etapa, setEtapa] = useState(null);
   const [fraccion, setFraccion] = useState(0);
   const [segundos, setSegundos] = useState(0);
+  const [conReferencia, setConReferencia] = useState(false);
   const vivo = useRef(true);
 
   useEffect(() => {
@@ -28,6 +30,7 @@ export default function Progreso({ id, onTerminado, onError }) {
         if (!vivo.current) return;
         setEtapa(e.etapa);
         setFraccion(e.fraccion || 0);
+        setConReferencia(!!e.con_referencia);
         if (e.estado === "terminado") return onTerminado(e.resultado);
         if (e.estado === "error") return onError(e.error);
         setTimeout(sondear, 1000);
@@ -43,6 +46,7 @@ export default function Progreso({ id, onTerminado, onError }) {
     };
   }, [id]);
 
+  const ETAPAS = conReferencia ? TODAS : TODAS.filter((e) => e !== "validacion");
   const indice = ETAPAS.indexOf(etapa);
   const global = indice < 0 ? 0 : (indice + fraccion) / ETAPAS.length;
   const mm = String(Math.floor(segundos / 60)).padStart(2, "0");

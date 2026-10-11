@@ -1,4 +1,5 @@
 import VisorNiiVue from "./VisorNiiVue.jsx";
+import Validacion from "./Validacion.jsx";
 import { urlArchivo } from "../api.js";
 
 const REF_CON_EDAD = "segun_edad (referencia)";
@@ -94,7 +95,7 @@ export default function Resultados({ id, resultado, onNuevo }) {
 
       <div className="tarjeta tarjeta-visor no-imprimir">
         <h2>Visor 3D</h2>
-        <VisorNiiVue id={id} />
+        <VisorNiiVue id={id} conReferencia={!!resultado.evaluacion} />
       </div>
 
       <div className="tarjeta">
@@ -115,6 +116,8 @@ export default function Resultados({ id, resultado, onNuevo }) {
         </div>
         <p className="pista">Segmentación: {resultado.segmentacion}.</p>
       </div>
+
+      {resultado.evaluacion && <Validacion id={id} resultado={resultado} />}
 
       <div className="tarjeta">
         <h2>Pronóstico</h2>
@@ -143,6 +146,11 @@ export default function Resultados({ id, resultado, onNuevo }) {
           <a href={urlArchivo(id, "segmentacion.nii.gz")}>segmentacion.nii.gz</a> ·{" "}
           <a href={urlArchivo(id, "caracteristicas.csv")}>caracteristicas.csv</a> ·{" "}
           <a href={urlArchivo(id, "resultado.json")}>resultado.json</a>
+          {resultado.evaluacion && (
+            <>
+              {" "}· <a href={urlArchivo(id, "diferencias.nii.gz")}>diferencias.nii.gz</a>
+            </>
+          )}
         </p>
       </div>
     </section>

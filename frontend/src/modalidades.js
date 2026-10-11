@@ -35,3 +35,16 @@ export function reconocer(archivos) {
   }
   return asignacion;
 }
+
+// Segmentación del radiólogo en formato BraTS: "<id>_seg.nii.gz" o "seg.nii.gz".
+export function esMascaraBrats(archivo) {
+  const b = base(archivo.name);
+  return esNifti(archivo) && (b === "seg" || b.endsWith("_seg"));
+}
+
+// Nombre del paciente a partir de "<id>_t1.nii.gz" (null si el archivo se llama solo "t1.nii.gz").
+export function idDelCaso(archivoT1) {
+  if (!archivoT1) return null;
+  const b = archivoT1.name.split(".")[0];
+  return b.toLowerCase().endsWith("_t1") ? b.slice(0, -3) : null;
+}
