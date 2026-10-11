@@ -112,5 +112,7 @@ Ninguna imagen médica debe subirse a este repositorio (`.gitignore` excluye `*.
 Para probar la app sin archivos propios, hay 2 casos de la colección **UPENN-GBM** (TCIA, **CC BY 4.0**) publicados
 como asset del Release: **`ejemplos-upenn.zip`**. Descárgalo y descomprímelo de modo que la carpeta `ejemplos/` quede
 **junto al ejecutable** (`reto-cimat-app.exe`); la app los mostrará en "Casos de ejemplo". En desarrollo se leen de
-`datos_prueba/` (o de `NUCLEO_EJEMPLOS`). Las imágenes de BraTS no se redistribuyen; solo las de UPENN-GBM (CC BY,
+`datos_prueba/` (o de `NUCLEO_EJEMPLOS`). Cada caso es una carpeta con `t1`, `t1ce`, `t2` y `flair` (`.nii.gz`);
+opcionalmente, `segmentacion.nii.gz` (se usa como la del modelo, sin correr nnU-Net) y `referencia.nii.gz`
+(segmentación del radiólogo: el ejemplo muestra la validación del modelo). Las imágenes de BraTS no se redistribuyen; solo las de UPENN-GBM (CC BY,
 atribución en la sección "Acerca de").

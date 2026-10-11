@@ -58,8 +58,13 @@ segmentación ya hecha en cada análisis (ver el paso 5, opción avanzada).
    - **Rápido** (recomendado): ~2 minutos.
    - **Completo**: ~12 minutos, algo más preciso.
    - *(Este paso solo aplica si no sube una segmentación propia.)*
-5. *(Opcional, avanzado)* Puede **subir una segmentación ya hecha**; entonces se omite la segmentación automática.
-6. Pulse **"Analizar paciente"** y espere. La barra muestra las etapas (leer, segmentar, radiómica, pronóstico).
+5. *(Opcional)* **Validar con la segmentación del radiólogo**: si tiene la segmentación manual del tumor (etiquetas
+   BraTS 1, 2 y 4), súbala aquí. **No reemplaza** al modelo: la app compara las dos (ver el paso 6). Si carga una
+   carpeta o un `.zip` de BraTS que trae `<id>_seg.nii.gz`, la detecta sola.
+6. *(Opcional, avanzado)* Puede **subir una segmentación ya hecha**; esta sí **sustituye** a la del modelo y omite la
+   segmentación automática. No se puede combinar con la validación.
+7. Pulse **"Analizar paciente"** y espere. La barra muestra las etapas (leer, segmentar, radiómica, pronóstico y, si
+   subió la del radiólogo, la comparación).
 
 ## 6. Leer los resultados
 
@@ -69,7 +74,22 @@ segmentación ya hecha en cada análisis (ver el paso 5, opción avanzada).
 - **Pronóstico**: la clase de supervivencia y los días estimados, con el **desempeño esperado** del modelo. Si dice
   **"No aplica"**, el motivo será que **falta la edad** o que **no hay realce (ET)** — el modelo se entrenó solo con
   tumores con realce, y no inventa un resultado.
-- **Vista de control**: una imagen (FLAIR + segmentación) que sirve para el informe.
+- **Validación frente al radiólogo** (solo si la subió):
+  - **Dice** por región: 1 = las dos máscaras coinciden por completo, 0 = no se tocan. En el estudio, la mediana fue
+    0,93 en el tumor completo, 0,91 en el núcleo y 0,85 en el realce.
+  - **HD95** (mm): el 95 % del borde del modelo queda a menos de esa distancia del borde del radiólogo; menor es mejor.
+    Si una región falta en una sola de las dos máscaras, vale 373,13 mm (convención de BraTS).
+  - **Sensibilidad** (cuánto del tumor marcado por el radiólogo encontró el modelo), **especificidad** y la diferencia de
+    volúmenes.
+  - **En el estudio**: histogramas del Dice de los 285 pacientes de BraTS 2018 (cada uno segmentado por el modelo que no
+    lo vio), con el caso marcado y su posición ("mejor o igual que el X %").
+  - **Pronóstico con cada máscara**: cuánto cambia el resultado si la radiómica se calcula con la máscara del radiólogo.
+  - En el visor, el selector **Máscara** muestra la del modelo, la del radiólogo o las **diferencias** en el tumor
+    completo: gris acuerdo, cian solo el modelo (de más), magenta solo el radiólogo (no detectado).
+  - Si el paciente es uno de BraTS 2018 del estudio, la segmentación automática usa solo el modelo que no lo vio en el
+    entrenamiento, para que la comparación sea honesta.
+- **Vista de control**: una imagen (FLAIR + segmentación) que sirve para el informe; con validación, también los
+  contornos del modelo frente a los del radiólogo.
 - Botones para **guardar un informe en PDF** y **descargar** la segmentación y los datos.
 
 > El **informe PDF** incluye volúmenes, pronóstico y la vista de control (no el visor 3D, que no se ve bien impreso).

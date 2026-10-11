@@ -16,18 +16,24 @@ resultado va de "supervivencia larga" a los 40 años a "corta" a los 80.
 ## El flujo del núcleo (`nucleo.analizar`)
 
 ```
-4 resonancias NIfTI (t1, t1ce, t2, flair) en formato BraTS  [+ edad]  [+ segmentación opcional]
+4 resonancias NIfTI (t1, t1ce, t2, flair) en formato BraTS  [+ edad]  [+ segmentación opcional]  [+ referencia]
  1. entrada.py       localizar los archivos y avisar si no parecen formato BraTS
  2. segmentacion.py  nnU-Net (5 folds) si no se da la máscara → posprocesado: ET < 500 voxeles se descarta
  3. radiomica.py     z-score sobre el cerebro → máscaras WT/TC/ET → PyRadiomics (1146 características)
  4. pronostico.py    Cox final → riesgo, clase (corta / media / larga) y días; o "no aplica"
- 5. salida           segmentacion.nii.gz, caracteristicas.csv, resultado.json, vista.png
+ 5. evaluacion.py    (solo con referencia del radiólogo) Dice, HD95, sensibilidad y especificidad como el estudio (D28),
+                     posición entre los 285 pacientes fuera de fold y pronóstico con la máscara del radiólogo
+ 6. salida           segmentacion.nii.gz, caracteristicas.csv, resultado.json, vista.png
+                     (+ referencia.nii.gz, diferencias.nii.gz, comparacion.png)
 ```
 
 - **Etiquetas BraTS:** 1 necrosis / no realzado, 2 edema, 4 realce. Regiones: WT = {1,2,4}, TC = {1,4}, ET = {4}.
 - **Clases de supervivencia** (Bakas et al. 2018, arXiv:1811.02629): corta < 10 meses (< 300 días), media 10–15, larga > 15.
 - **"No aplica"** si falta la edad, o si no hay realce (ET). El modelo se entrenó solo con HGG con realce.
-- `progreso(etapa, fraccion)` informa el avance por etapas: entrada, segmentacion, radiomica, pronostico y salida.
+- `progreso(etapa, fraccion)` informa el avance por etapas: entrada, segmentacion, radiomica, pronostico, validacion
+  (solo con referencia) y salida.
+- **Pacientes del estudio:** si el caso es un paciente de BraTS 2018 (por su nombre, `artefactos/folds.csv`), nnU-Net usa
+  solo el fold que no lo vio; si no, la validación sería optimista.
 
 ## Números que las pruebas protegen (`tests/esperado/`)
 
@@ -35,6 +41,8 @@ resultado va de "supervivencia larga" a los 40 años a "corta" a los 80.
   ~522 días, clase larga, volúmenes WT 101.61 / TC 24.61 / ET 16.47 cm³.
 - Brats18_2013_25_1: ET vacío tras el posprocesado → "no aplica".
 - Posprocesado de ET: 3 predicciones crudas de nnU-Net dan máscaras idénticas, bit a bit, a las del estudio.
+- Validación: la máscara final de Brats18_CBICA_AAP_1 y de Brats18_2013_25_1 frente a la manual da exactamente su fila de
+  `metricas_segmentacion_oof.csv` (Dice WT 0.9548…, tolerancia 1e-9). Necesita `datos_prueba/<caso>/referencia.nii.gz`.
 
 ## Limitaciones que la app debe comunicar
 

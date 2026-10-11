@@ -30,6 +30,7 @@ export default function Guia({ onCerrar }) {
           <li><strong>Cargue</strong> los 4 archivos (o una carpeta o un <code>.zip</code>).</li>
           <li>Escriba la <strong>edad</strong> si la conoce.</li>
           <li>Elija el modo de segmentación: <strong>Rápido</strong> (~2 min) o <strong>Completo</strong> (~12 min).</li>
+          <li><em>Opcional:</em> suba la <strong>segmentación del radiólogo</strong> para validar la del modelo.</li>
           <li>Pulse <strong>“Analizar paciente”</strong> y espere las etapas.</li>
         </ol>
 
@@ -37,6 +38,11 @@ export default function Guia({ onCerrar }) {
         <ul>
           <li><strong>Visor 3D</strong>: máscara en colores (rojo necrosis, verde edema, amarillo realce).</li>
           <li><strong>Volúmenes</strong> (cm³) y <strong>pronóstico</strong> (o “no aplica” si falta la edad o el realce).</li>
+          <li>
+            <strong>Validación</strong> (si subió la del radiólogo): Dice (1 = coinciden), HD95 en mm (menor es mejor) y
+            la posición del caso entre los 285 pacientes del estudio. En el visor, la capa “Diferencias” marca en cian
+            lo que el modelo añadió y en magenta lo que no detectó.
+          </li>
           <li>Botón para <strong>guardar un informe en PDF</strong>.</li>
         </ul>
 
