@@ -48,12 +48,13 @@ body {
   font-family: "Inter", -apple-system, BlinkMacSystemFont,
     "Segoe UI", Roboto, Arial, sans-serif;
 
-  /* Franja institucional azul arriba; las tarjetas se montan sobre ella */
+  /* Franja institucional azul plana arriba, rematada con una línea roja;
+     las tarjetas se montan sobre ella */
   background:
-    radial-gradient(ellipse 60% 120% at 85% -20%, rgba(255, 255, 255, 0.12), transparent 60%)
+    linear-gradient(var(--azul-uniajc), var(--azul-uniajc))
       top / 100% var(--alto-franja) no-repeat,
-    linear-gradient(160deg, var(--azul-oscuro) 0%, var(--azul-uniajc) 55%, #0a5196 100%)
-      top / 100% var(--alto-franja) no-repeat,
+    linear-gradient(var(--rojo-uniajc), var(--rojo-uniajc))
+      0 var(--alto-franja) / 100% 4px no-repeat,
     var(--fondo);
   color: var(--texto);
 
@@ -254,10 +255,6 @@ main > .tarjeta.inicio {
   box-shadow: var(--sombra-elevada);
 }
 
-/* Inicio: línea roja institucional como acento */
-.tarjeta.inicio {
-  border-top: 4px solid var(--rojo-uniajc);
-}
 
 /* Línea institucional superior */
 .tarjeta.institucional {
