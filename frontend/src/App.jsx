@@ -48,6 +48,25 @@ export default function App() {
       </button>
       {mostrarGuia && <Guia onCerrar={() => setMostrarGuia(false)} />}
 
+      <header className="cabecera">
+        <span className="marca-logo">
+          <img
+            src="logo-uniajc.png"
+            alt=""
+            onError={(e) => {
+              e.currentTarget.parentElement.style.display = "none";
+            }}
+          />
+        </span>
+        <div className="marca-texto">
+          <p className="marca-uni">Universidad Antonio José Camacho · Team Camacho</p>
+          <p className="marca-app">
+            Análisis de glioma
+            <span className="marca-etiqueta">Prototipo de investigación</span>
+          </p>
+        </div>
+      </header>
+
       <main>
         {fase === "inicio" && (
           <Inicio
