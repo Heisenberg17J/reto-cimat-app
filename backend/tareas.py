@@ -34,6 +34,8 @@ class Tarea:
     resultado: dict | None = None    # resultado.json (res.a_dict()), sin rutas absolutas
     edad: float | None = None
     segmentacion: Path | None = None
+    referencia: Path | None = None   # segmentacion del radiologo: se compara con la del modelo
+    id_caso: str | None = None       # nombre del paciente (fold fuera de fold si es del estudio)
     folds: tuple = (0, 1, 2, 3, 4)   # qué modelos de nnU-Net usar (modo rápido: solo uno)
 
     @property
@@ -57,7 +59,8 @@ class Tarea:
         return d
 
 
-ARCHIVOS_SALIDA = ("caracteristicas.csv", "resultado.json", "segmentacion.nii.gz", "vista.png")
+ARCHIVOS_SALIDA = ("caracteristicas.csv", "resultado.json", "segmentacion.nii.gz", "vista.png",
+                   "referencia.nii.gz", "diferencias.nii.gz", "comparacion.png")
 
 
 class GestorTareas:
@@ -83,9 +86,12 @@ class GestorTareas:
             self._tareas[tid] = tarea
         return tarea
 
-    def encolar(self, tarea: Tarea, edad=None, segmentacion=None, folds=(0, 1, 2, 3, 4)):
+    def encolar(self, tarea: Tarea, edad=None, segmentacion=None, referencia=None, id_caso=None,
+                folds=(0, 1, 2, 3, 4)):
         tarea.edad = edad
         tarea.segmentacion = segmentacion
+        tarea.referencia = referencia
+        tarea.id_caso = id_caso
         tarea.folds = tuple(folds)
         self._cola.put(tarea.id)
 
@@ -120,8 +126,9 @@ class GestorTareas:
 
     def _procesar(self, tarea: Tarea):
         tarea.estado = "procesando"
-        log.info("analisis %s: inicio (edad=%s, folds=%s, segmentacion_externa=%s)",
-                 tarea.id, tarea.edad, list(tarea.folds), tarea.segmentacion is not None)
+        log.info("analisis %s: inicio (edad=%s, folds=%s, segmentacion_externa=%s, referencia=%s)",
+                 tarea.id, tarea.edad, list(tarea.folds), tarea.segmentacion is not None,
+                 tarea.referencia is not None)
 
         def progreso(etapa, fraccion):
             tarea.etapa = etapa
@@ -129,7 +136,7 @@ class GestorTareas:
 
         try:
             r = analizar(tarea.entrada, edad=tarea.edad, segmentacion=tarea.segmentacion,
-                         folds=tarea.folds, salida=tarea.salida, progreso=progreso)
+                         referencia=tarea.referencia, id_caso=tarea.id_caso, folds=tarea.folds, salida=tarea.salida, progreso=progreso)
             tarea.resultado = _sin_rutas(r.a_dict(), tarea.id)
             tarea.fraccion = 1.0
             tarea.estado = "terminado"

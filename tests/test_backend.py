@@ -127,3 +127,59 @@ def test_sin_edad_no_hay_pronostico(cliente):
     assert e["estado"] == "terminado", e.get("error")
     assert not e["resultado"]["pronostico"]["aplica"]
     assert "edad" in e["resultado"]["pronostico"]["motivo"]
+
+
+def _zip_brats_con_seg():
+    """Carpeta BraTS tal cual en un .zip: <id>_<modalidad>.nii.gz + <id>_seg.nii.gz (la del radiólogo)."""
+    import io
+    import zipfile
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as z:
+        for m in MODALIDADES:
+            z.write(DATOS / PID / f"{m}.nii.gz", f"{PID}/{PID}_{m}.nii.gz")
+        z.write(DATOS / PID / "referencia.nii.gz", f"{PID}/{PID}_seg.nii.gz")
+    return buf.getvalue()
+
+
+requiere_referencia = pytest.mark.skipif(not (DATOS / PID / "referencia.nii.gz").exists(),
+                                         reason="falta datos_prueba/<caso>/referencia.nii.gz")
+
+
+@requiere_referencia
+def test_zip_con_seg_se_usa_como_referencia(cliente):
+    # La _seg del zip NO reemplaza al modelo: aqui el modelo es la segmentacion subida aparte.
+    seg = [("segmentacion", ("segmentacion.nii.gz",
+                             (DATOS / PID / "segmentacion.nii.gz").read_bytes(), "application/gzip"))]
+    r = cliente.post("/api/analisis", files=[("archivos", ("caso.zip", _zip_brats_con_seg(), "application/zip"))]
+                     + seg, data={"edad": "39.068"})
+    assert r.status_code == 202, r.text
+    e = _esperar(cliente, r.json()["id"])
+    assert e["estado"] == "terminado", e.get("error")
+    res = e["resultado"]
+    assert res["volumen_cm3"] == ESPERADO[PID]["volumen_cm3"]           # el modelo sigue siendo el modelo
+    ev = res["evaluacion"]
+    assert ev["metricas"]["WT"]["dice"] == pytest.approx(0.9548144897859685, abs=1e-9)
+    assert ev["caso_del_estudio"]["paciente_id"] == PID                  # reconocido por el nombre del zip
+    for n in ("referencia.nii.gz", "diferencias.nii.gz", "comparacion.png"):
+        assert n in e["archivos"], n
+        assert cliente.get(e["archivos"][n]).status_code == 200, n
+
+
+@requiere_referencia
+def test_ejemplo_con_referencia(cliente, monkeypatch):
+    monkeypatch.setenv("NUCLEO_EJEMPLOS", str(DATOS))
+    ej = {x["id"]: x for x in cliente.get("/api/ejemplos").json()}
+    assert ej[PID]["tiene_referencia"]
+    e = _esperar(cliente, cliente.post(f"/api/ejemplos/{PID}").json()["id"])
+    assert e["estado"] == "terminado", e.get("error")
+    assert e["resultado"]["evaluacion"]["estudio"]["fila_del_paciente"] is not None
+
+
+@requiere_datos
+def test_sin_referencia_no_hay_evaluacion(cliente):
+    seg = [("segmentacion", ("segmentacion.nii.gz",
+                             (DATOS / PID / "segmentacion.nii.gz").read_bytes(), "application/gzip"))]
+    e = _esperar(cliente, cliente.post("/api/analisis", files=_archivos_paciente() + seg).json()["id"])
+    assert e["estado"] == "terminado", e.get("error")
+    assert e["resultado"]["evaluacion"] is None
+    assert "comparacion.png" not in e["archivos"]

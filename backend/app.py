@@ -1,6 +1,7 @@
 """La aplicacion FastAPI: endpoints que envuelven `nucleo.analizar()`.
 
-    POST   /api/analisis               sube resonancias (sueltas o .zip) + edad + segmentacion -> {id}
+    POST   /api/analisis               sube resonancias (sueltas o .zip) + edad + segmentacion
+                                       + referencia (radiologo) -> {id}
     GET    /api/analisis/{id}          estado, etapa, avance, error o resultado
     GET    /api/analisis/{id}/archivo/{nombre}   segmentacion, resonancias, vista.png, resultado.json
     DELETE /api/analisis/{id}          borra los archivos del analisis
@@ -59,6 +60,21 @@ async def _recibir(subida: UploadFile, entrada: Path):
         await _guardar_subida(subida, entrada / nombre)
 
 
+def _es_mascara_brats(nombre: str) -> bool:
+    """`<id>_seg.nii.gz` (o `seg.nii.gz`): la segmentacion manual que trae el formato BraTS."""
+    base = nombre.lower().split(".")[0]
+    return base == "seg" or base.endswith("_seg")
+
+
+def _apartar_referencia(entrada: Path, destino: Path) -> bool:
+    """Si entre las resonancias subidas viene la mascara manual de BraTS, la mueve a `destino`."""
+    candidatos = [f for f in entrada.glob("*.nii*") if _es_mascara_brats(f.name)]
+    if len(candidatos) != 1:
+        return False
+    shutil.move(candidatos[0], destino)
+    return True
+
+
 def carpeta_ejemplos() -> Path | None:
     """Carpeta con casos de ejemplo (imágenes BraTS); NO se distribuye (licencia).
 
@@ -95,7 +111,8 @@ def listar_ejemplos() -> list[dict]:
             continue
         m = meta.get(sub.name, {})
         salida.append({"id": sub.name, "nombre": m.get("nombre", sub.name), "edad": m.get("edad"),
-                       "tiene_segmentacion": (sub / "segmentacion.nii.gz").is_file()})
+                       "tiene_segmentacion": (sub / "segmentacion.nii.gz").is_file(),
+                       "tiene_referencia": (sub / "referencia.nii.gz").is_file()})
     return salida
 
 
@@ -151,7 +168,12 @@ def crear_app(raiz_datos=None) -> FastAPI:
         if seg.is_file():                      # usar la segmentación del ejemplo: demo rápida
             seg_path = tarea.carpeta / "segmentacion_entrada.nii.gz"
             shutil.copy(seg, seg_path)
-        gestor.encolar(tarea, edad=info.get("edad"), segmentacion=seg_path, folds=(0,))
+        ref_path = None
+        if (caso / "referencia.nii.gz").is_file():   # segmentación del radiólogo: validar el modelo
+            ref_path = tarea.carpeta / "referencia_entrada.nii.gz"
+            shutil.copy(caso / "referencia.nii.gz", ref_path)
+        gestor.encolar(tarea, edad=info.get("edad"), segmentacion=seg_path, referencia=ref_path,
+                       id_caso=caso.name, folds=(0,))
         return {"id": tarea.id}
 
     @app.post("/api/analisis", status_code=202)
@@ -159,6 +181,8 @@ def crear_app(raiz_datos=None) -> FastAPI:
         archivos: list[UploadFile] = File(..., description="4 resonancias (sueltas o en un .zip)"),
         edad: float | None = Form(None),
         segmentacion: UploadFile | None = File(None),
+        referencia: UploadFile | None = File(None, description="segmentacion del radiologo (se compara)"),
+        id_caso: str | None = Form(None, description="nombre del paciente (p. ej. Brats18_CBICA_AAP_1)"),
         modo: str = Form("rapido", description="rapido (1 fold, ~2 min) o completo (5 folds, ~12 min)"),
     ):
         if edad is not None and not (0 < edad < 120):
@@ -172,6 +196,11 @@ def crear_app(raiz_datos=None) -> FastAPI:
         if segmentacion is not None and segmentacion.filename:
             seg_path = tarea.carpeta / "segmentacion_entrada.nii.gz"
             await _guardar_subida(segmentacion, seg_path)
+        ref_path = tarea.carpeta / "referencia_entrada.nii.gz"
+        if referencia is not None and referencia.filename:
+            await _guardar_subida(referencia, ref_path)
+        elif not _apartar_referencia(tarea.entrada, ref_path):   # la del .zip BraTS (<id>_seg), si viene
+            ref_path = None
 
         try:                              # validacion rapida: feedback inmediato si faltan resonancias
             buscar_modalidades(tarea.entrada)
@@ -179,7 +208,8 @@ def crear_app(raiz_datos=None) -> FastAPI:
             gestor.borrar(tarea.id)
             raise HTTPException(400, str(e))
 
-        gestor.encolar(tarea, edad=edad, segmentacion=seg_path, folds=folds)
+        gestor.encolar(tarea, edad=edad, segmentacion=seg_path, referencia=ref_path,
+                       id_caso=Path(id_caso).name if id_caso else None, folds=folds)
         return {"id": tarea.id}
 
     @app.get("/api/analisis/{id}")
