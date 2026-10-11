@@ -14,6 +14,8 @@ ARTEFACTOS = Path(os.environ.get("NUCLEO_ARTEFACTOS", RAIZ / "artefactos"))
 PARAMS = ARTEFACTOS / "params_brats2018_v0.yaml"
 MODELO_PRONOSTICO = ARTEFACTOS / "pronostico_coxnet.joblib"
 POSPROCESO = ARTEFACTOS / "postproceso_et.json"
+FOLDS = ARTEFACTOS / "folds.csv"                                  # 5 x 57 del estudio (D22)
+METRICAS_OOF = ARTEFACTOS / "metricas_segmentacion_oof.csv"     # Dice/HD95 fuera de fold, 285 pacientes (D28)
 # Pesos de nnU-Net: no van en git (pesan ~1 GB); ver README
 MODELO_NNUNET = Path(os.environ.get(
     "NUCLEO_NNUNET",

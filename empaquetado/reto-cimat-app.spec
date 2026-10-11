@@ -67,7 +67,8 @@ hiddenimports += [
 # --- Datos de la app (lo que se lee en ejecución) ---
 # Artefactos PEQUEÑOS (nunca los pesos: artefactos/nnunet queda fuera a propósito).
 for nombre in ("params_brats2018_v0.yaml", "pronostico_coxnet.joblib", "pronostico_coxnet.json",
-               "postproceso_et.json", "SHA256SUMS", "PROCEDENCIA.md"):
+               "postproceso_et.json", "folds.csv", "metricas_segmentacion_oof.csv",
+               "metricas_segmentacion_resumen.csv", "SHA256SUMS", "PROCEDENCIA.md"):
     datas += [(str(RAIZ / "artefactos" / nombre), "artefactos")]
 # Frontend compilado y datos del backend.
 datas += arbol(RAIZ / "frontend" / "dist", "frontend/dist")

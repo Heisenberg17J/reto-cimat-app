@@ -1,6 +1,7 @@
 """Linea de comandos.
 
-    python -m nucleo.cli --caso CARPETA [--edad 62] [--segmentacion seg.nii.gz] [--salida DIR]
+    python -m nucleo.cli --caso CARPETA [--edad 62] [--segmentacion seg.nii.gz] [--referencia seg_radiologo.nii.gz]
+                         [--salida DIR]
 """
 
 import argparse
@@ -16,6 +17,8 @@ def main(argv=None):
     ap.add_argument("--caso", required=True, type=Path, help="carpeta con t1, t1ce, t2 y flair")
     ap.add_argument("--edad", type=float, help="edad en anos; sin ella no hay pronostico")
     ap.add_argument("--segmentacion", type=Path, help="mascara ya hecha (BraTS 0/1/2/4): omite nnU-Net")
+    ap.add_argument("--referencia", type=Path,
+                    help="segmentacion del radiologo (BraTS 0/1/2/4): se compara con la del modelo")
     ap.add_argument("--folds", type=int, nargs="+", default=[0, 1, 2, 3, 4])
     ap.add_argument("--tta", action="store_true", default=None, help="aumento en prueba con espejos")
     ap.add_argument("--salida", type=Path, help="carpeta de resultados (por defecto salidas/<caso>)")
@@ -30,7 +33,8 @@ def main(argv=None):
             print(f"-> {etapa}")
 
     try:
-        r = analizar(args.caso, edad=args.edad, segmentacion=args.segmentacion, folds=tuple(args.folds),
+        r = analizar(args.caso, edad=args.edad, segmentacion=args.segmentacion,
+                     referencia=args.referencia, folds=tuple(args.folds),
                      tta=args.tta, salida=args.salida or Path("salidas") / args.caso.resolve().name,
                      progreso=progreso)
     except ErrorEntrada as e:
@@ -50,6 +54,18 @@ def main(argv=None):
         print(f"pronostico: no aplica. {p['motivo']}")
         for e, v in p.get("solo_referencia_segun_edad (NO es una prediccion)", {}).items():
             print(f"   referencia, si tuviera {e} anos: {v['clase']}, ~{v['dias_mediana_estimada']:.0f} dias")
+    if r.evaluacion:
+        ev = r.evaluacion
+        print(f"\nvalidacion frente a {ev['fuente_ref']} (posicion entre los {ev['estudio']['n_pacientes']} "
+              f"pacientes del estudio, fuera de fold):")
+        for reg, m in ev["metricas"].items():
+            u = ev["estudio"]["regiones"][reg]
+            print(f"   {reg}: Dice {m['dice']:.3f} (mediana del estudio {u['dice_mediana']:.3f}, "
+                  f"mejor o igual que el {u['percentil_dice']:.0f} %) | HD95 {m['hd95_mm']:.1f} mm")
+        pr = ev["pronostico_ref"]
+        print("   pronostico con la mascara del radiologo: "
+              + (f"{pr['clase']}, ~{pr['dias_mediana_estimada']:.0f} dias, riesgo {pr['riesgo']:+.3f}"
+                 if pr["aplica"] else f"no aplica. {pr['motivo']}"))
     print(f"\nsalida: {Path(r.archivos['resultado.json']).parent}/")
     return 0
 

@@ -34,3 +34,39 @@ def figura(ruta_flair, seg, destino, titulo):
     fig.tight_layout(rect=(0, 0.07, 1, 0.94))
     fig.savefig(destino, dpi=110)
     plt.close(fig)
+
+
+def figura_comparacion(ruta_flair, seg, ref, destino, titulo):
+    """FLAIR con los contornos del modelo y del radiologo: tumor completo (WT) continuo, realce (ET) punteado."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.lines import Line2D
+
+    flair = np.asanyarray(nib.load(ruta_flair).dataobj)
+    wt_ref = np.isin(ref, (1, 2, 4))
+    centro = wt_ref if wt_ref.any() else np.isin(seg, (1, 2, 4))
+    cx, cy, cz = (np.round(np.argwhere(centro).mean(axis=0)).astype(int) if centro.any()
+                  else np.array(seg.shape) // 2)
+    cortes = [("axial", lambda a: np.rot90(a[:, :, cz])), ("coronal", lambda a: np.rot90(a[:, cy, :])),
+              ("sagital", lambda a: np.rot90(a[cx, :, :]))]
+    colores = {"modelo": "#00d0ff", "radiólogo": "#ff3df5"}
+    fig, ejes = plt.subplots(1, 3, figsize=(13, 4.8))
+    for eje, (nombre, corte) in zip(ejes, cortes):
+        eje.imshow(corte(flair), cmap="gray")
+        for quien, m in (("radiólogo", ref), ("modelo", seg)):
+            for etiquetas, estilo in (((1, 2, 4), "solid"), ((4,), "dotted")):
+                c = corte(np.isin(m, etiquetas)).astype(float)
+                if c.any():
+                    eje.contour(c, levels=[0.5], colors=colores[quien], linewidths=1.2, linestyles=estilo)
+        eje.set_title(f"FLAIR, {nombre}")
+        eje.axis("off")
+    fig.legend(handles=[Line2D([], [], color=colores["modelo"], label="modelo"),
+                        Line2D([], [], color=colores["radiólogo"], label="radiólogo"),
+                        Line2D([], [], color="gray", label="tumor completo (WT)"),
+                        Line2D([], [], color="gray", linestyle="dotted", label="realce (ET)")],
+               loc="lower center", ncol=4, frameon=False)
+    fig.suptitle(titulo, fontsize=10)
+    fig.tight_layout(rect=(0, 0.07, 1, 0.94))
+    fig.savefig(destino, dpi=110)
+    plt.close(fig)
