@@ -42,84 +42,100 @@ export default function App() {
   }
 
   return (
-    <div className="app">
-      <button className="boton-guia" onClick={() => setMostrarGuia(true)} aria-label="Abrir la guía">
-        <span aria-hidden="true">?</span> Guía
-      </button>
-      {mostrarGuia && <Guia onCerrar={() => setMostrarGuia(false)} />}
-
-      <header className="cabecera">
-        <span className="marca-logo">
-          <img
-            src="logo-uniajc.png"
-            alt=""
-            onError={(e) => {
-              e.currentTarget.parentElement.style.display = "none";
-            }}
-          />
-        </span>
-        <div className="marca-texto">
-          <p className="marca-uni">Universidad Antonio José Camacho · Team Camacho</p>
-          <p className="marca-app">
-            Análisis de glioma
-            <span className="marca-etiqueta">Prototipo de investigación</span>
-          </p>
+    <>
+      <header className="barra-superior">
+        <div className="barra-interior">
+          <div className="marca">
+            <img
+              className="marca-logo"
+              src="logo-uniajc.png"
+              alt=""
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+              }}
+            />
+            <span className="marca-uni">UNIAJC</span>
+            <span className="marca-separador" aria-hidden="true" />
+            <span className="marca-proyecto">reto-CIMAT</span>
+          </div>
+          <button className="boton-guia" onClick={() => setMostrarGuia(true)} aria-label="Abrir la guía">
+            <span aria-hidden="true">?</span> Guía
+          </button>
         </div>
       </header>
+      {mostrarGuia && <Guia onCerrar={() => setMostrarGuia(false)} />}
 
-      <main>
-        {fase === "inicio" && (
-          <Inicio
-            onEmpezar={() => setFase("carga")}
-            pesos={pesos}
-            setPesos={setPesos}
-            ejemplos={ejemplos}
-            onEjemplo={usarEjemplo}
-          />
-        )}
+      <div className="app">
+        <main>
+          {fase === "inicio" && (
+            <Inicio
+              onEmpezar={() => setFase("carga")}
+              pesos={pesos}
+              setPesos={setPesos}
+              ejemplos={ejemplos}
+              onEjemplo={usarEjemplo}
+            />
+          )}
 
-        {fase === "carga" && (
-          <Carga
-            pesos={pesos}
-            onIniciado={(id) => {
-              setAnalisisId(id);
-              setError(null);
-              setFase("progreso");
-            }}
-            onCancelar={reiniciar}
-          />
-        )}
+          {fase === "carga" && (
+            <Carga
+              pesos={pesos}
+              onIniciado={(id) => {
+                setAnalisisId(id);
+                setError(null);
+                setFase("progreso");
+              }}
+              onCancelar={reiniciar}
+            />
+          )}
 
-        {fase === "progreso" && (
-          <Progreso
-            id={analisisId}
-            onTerminado={(res) => {
-              setResultado(res);
-              setFase("resultados");
-            }}
-            onError={(msg) => {
-              setError(msg);
-              setFase("carga");
-            }}
-          />
-        )}
+          {fase === "progreso" && (
+            <Progreso
+              id={analisisId}
+              onTerminado={(res) => {
+                setResultado(res);
+                setFase("resultados");
+              }}
+              onError={(msg) => {
+                setError(msg);
+                setFase("carga");
+              }}
+            />
+          )}
 
-        {fase === "resultados" && (
-          <Resultados id={analisisId} resultado={resultado} onNuevo={reiniciar} />
-        )}
+          {fase === "resultados" && (
+            <Resultados id={analisisId} resultado={resultado} onNuevo={reiniciar} />
+          )}
 
-        {error && fase === "carga" && (
-          <p className="error">No se pudo completar: {error}</p>
-        )}
-      </main>
+          {error && fase === "carga" && (
+            <p className="error">No se pudo completar: {error}</p>
+          )}
+        </main>
+      </div>
 
       <footer className="pie">
-        Prototipo de investigación · no es una herramienta clínica · reto-cimat-app · BraTS 2018 ·{" "}
-        <button className="enlace-pie" onClick={() => setMostrarAcerca(true)}>
-          Acerca de
-        </button>
+        <div className="pie-interior">
+          <div>
+            <p className="pie-titulo">Universidad Antonio José Camacho</p>
+            <p>
+              <strong>Team Camacho</strong> — semilleros AppliScience y SEMOSIMA
+            </p>
+            <p className="pie-autores">
+              Hejembert Jaramillo · Daniel León · Karen Arroyave · Dylan Cuervo · Nikol López
+            </p>
+          </div>
+          <div className="pie-legal">
+            <p>Prototipo de investigación · no es una herramienta clínica</p>
+            <p>
+              BraTS 2018 ·{" "}
+              <button className="enlace-pie" onClick={() => setMostrarAcerca(true)}>
+                Acerca de
+              </button>
+            </p>
+          </div>
+        </div>
       </footer>
       {mostrarAcerca && <AcercaDe onCerrar={() => setMostrarAcerca(false)} />}
-    </div>
+    </>
   );
 }

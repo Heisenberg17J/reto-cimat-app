@@ -1,4 +1,4 @@
-// Guía rápida dentro de la app (modal). Se abre con el botón flotante "? Guía".
+// Guía rápida dentro de la app (modal). Se abre con el botón "? Guía" de la barra superior.
 const GUIA_COMPLETA =
   "https://github.com/Heisenberg17J/reto-cimat-app/blob/main/docs/GUIA_USUARIO.md";
 const BRATS_TOOLKIT = "https://brats-toolkit.readthedocs.io";
